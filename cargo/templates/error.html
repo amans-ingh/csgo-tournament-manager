@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="cover-container d-flex p-3 mx-auto flex-column text-center my-6" style="height: 88vh;">
+    <main role="main" class="inner cover my-auto">
+        <h1 class="cover-heading text-white">Page Not Found</h1>
+        <p class="lead">Please check the URL</p>
+        <p class="lead">
+            <a id="cancel" class="btn btn-lg btn-primary" href="{{ url_for('index') }}">Home</a>
+        </p>
+    </main>
+</div>
+{% endblock %}

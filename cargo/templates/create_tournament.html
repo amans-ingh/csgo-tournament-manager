@@ -1,0 +1,167 @@
+{% extends 'layout.html' %}
+{% block content %}
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <div class="bg-dark text-white"
+                style="background: #ffffff; padding: 10px 20px; border: 1px solid #dddddd; border-radius: 3px; margin-bottom: 20px; position: relative;">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Create a Tournament</legend>
+                        <div class="form-group">
+                            {{ form.name.label(class="form-control-label") }}
+                            {% if form.name.errors %}
+                            {{ form.name(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.name.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.name(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                        <div class="row"><div class="col-md-4">
+                        <div class="form-group">
+                            {{ form.type.label(class="form-control-label mt-4") }}
+                            {% if form.type.errors %}
+                            {{ form.type(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.type.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.type(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div></div> <div class="col-md-4">
+                        <div class="form-group">
+                            {{ form.prize.label(class="form-control-label mt-4") }}
+                            {% if form.prize.errors %}
+                            {{ form.prize(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.prize.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.prize(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                        </div><div class="col-md-4">
+                            <div class="form-group">
+                            {{ form.max_teams.label(class="form-control-label mt-4") }}
+                            {% if form.max_teams.errors %}
+                            {{ form.max_teams(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.max_teams.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.max_teams(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                        </div>
+                        </div>
+
+
+                        <div class="row"><div class="col-md-3">
+                        <div class="form-group">
+                            {{ form.reg_start.label(class="form-control-label mt-4") }}
+                            {% if form.reg_start.errors %}
+                            {{ form.reg_start(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.reg_start.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.reg_start(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                            </div> <div class="col-md-3">
+                            <div class="form-group">
+                            {{ form.reg_end.label(class="form-control-label mt-4") }}
+                            {% if form.reg_end.errors %}
+                            {{ form.reg_end(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.reg_end.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.reg_end(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                            </div>
+                            <div class="col-md-3">
+                        <div class="form-group">
+                            {{ form.tour_start.label(class="form-control-label mt-4") }}
+                            {% if form.tour_start.errors %}
+                            {{ form.tour_start(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.tour_start.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.tour_start(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                            </div> <div class="col-md-3">
+                            <div class="form-group">
+                            {{ form.tour_end.label(class="form-control-label mt-4") }}
+                            {% if form.tour_end.errors %}
+                            {{ form.tour_end(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.tour_end.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.tour_end(class="form-control form-control-sm") }}
+                            {% endif %}
+                            </div>
+                            </div> </div>
+
+                        <div class="form-group">
+                            <div class="row">
+                            <div class="col-md-4">
+                            <div class="mt-5">
+                            {{ form.paid.label() }} {{ form.paid(class="") }}
+                            </div></div>
+                            <div class="col-md-8">
+                            {{ form.payment_info.label(class="form-control-label mt-4") }}
+                            {% if form.payment_info.errors %}
+                            {{ form.payment_info(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.payment_info.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.payment_info(class="form-control form-control-sm") }}
+                            {% endif %}
+                            </div></div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        {{ form.submit(class="btn btn-outline-info mt-4") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

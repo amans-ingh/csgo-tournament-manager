@@ -1,0 +1,141 @@
+{% extends 'layout.html' %}
+{% block content %}
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <div class="bg-dark" style="background: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  position: relative;">
+                <h2>Tournament Details</h2>
+                <hr>
+                <table class="table text-white">
+                        <tbody>
+                        <tr>
+                            <td><b>Tournament Structure:</b></td>
+                            <td>{{ bracket }}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Registration Last Date:</b></td>
+                            <td>{{ tour.reg_end }}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Tournament Start Date:</b></td>
+                            <td>{{ tour.tour_start }}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Tournament End Date:</b></td>
+                            <td>{{ tour.tour_end }}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Paid Tournmant:</b></td>
+                            <td>{{ tour.paid }}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Prize Pool:</b></td>
+                            <td>{{ tour.prize }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+            </div>
+                <div class="bg-dark" style="background: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  position: relative;">
+                <h2>Your Team Details</h2>
+                <hr>
+                    {% if team %}
+                    <h3>{{ team.name }}</h3>
+                    <table class="table text-white">
+                        <thead>
+                        <tr>
+                            <th>Nickname</th>
+                            <th>Steam ID</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>{{ team.p1 }}</td>
+                            <td>{{ team.p1_steam_id }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ team.p2 }}</td>
+                            <td>{{ team.p2_steam_id }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ team.p3 }}</td>
+                            <td>{{ team.p3_steam_id }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ team.p4 }}</td>
+                            <td>{{ team.p4_steam_id }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ team.p5 }}</td>
+                            <td>{{ team.p5_steam_id }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    {% else %}
+                    No team information found! Register your team in-order to request participation. <a class="btn btn-warning" href="/team">Team</a>
+                    {% endif %}
+            </div>
+            {% if tour.paid %}
+            <div class="bg-dark" style="background: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  position: relative;">
+                <h2>Payment Info</h2>
+                <hr>
+                {{ tour.payment_info }}
+            </div>
+            {% endif %}
+            <div class="bg-dark" style="background: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  position: relative;">
+                <h2>Organiser Contacts</h2>
+                <hr>
+                <table class="table text-white">
+                    <tbody>
+                    <tr>
+                        <td>Name</td>
+                        <td>{{ organiser.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>{{ organiser.email }}</td>
+                    </tr>
+                    <tr>
+                        <td>Telegram</td>
+                        <td>8959740385</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% if team %}
+                        <a class="btn btn-info" href="/browse/{{ tour.id }}/register/confirm">Request Registration</a>
+            {% endif %}
+            <a class="btn btn-warning" href="/browse">Back to Browse</a>
+
+        </div>
+    </div>
+</main>
+{% endblock %}

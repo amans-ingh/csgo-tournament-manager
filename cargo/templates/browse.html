@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+<div id="content" class="text-white">
+      <div class="row">
+          <div class="col-md-10">
+              <h1>Browse Tournaments open for Registration</h1>
+          </div>
+      </div>
+  <table class="table text-white mt-5">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name of Tournament</th>
+        <th>Participants</th>
+        <th>Prize Pool</th>
+        <th>Tournament Date</th>
+        <th>Reg Last Date</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for t in tour %}
+      <tr>
+        <td> {{ t.id }}</td>
+        <td>
+            <a href="/browse/{{ t.id }}/register">
+          {{ t.name }}
+            </a>
+        </td>
+        <td>
+          {{ t.participants }}/{{ t.max_teams }}
+        </td>
+        <td>
+          {{ t.prize }}
+        </td>
+      <td>
+          {{ t.tour_start }}
+      </td>
+          <td>{{ t.reg_end }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

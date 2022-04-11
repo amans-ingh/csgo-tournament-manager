@@ -1,0 +1,222 @@
+{% extends "layout.html" %}
+{% block content %}
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <div class="bg-dark text-white"
+                style="background: #ffffff; padding: 10px 20px; border: 1px solid #dddddd; border-radius: 3px; margin-bottom: 20px; position: relative;">
+                <div class="media" style="display: flex;">
+                    <img class="rounded-circle" src="{{ url_for('static', filename='images/default.jpg') }}"
+                        style="height: 125px; width: 125px; margin-right: 20px; margin-bottom: 16px;">
+                    <div class="media-body">
+                        <h2 class="media-heading text-white" style="font-size: 2.5rem;">{{ user.name }}</h2>
+                        <p class="text-secondary">{{ user.email }}</p>
+                    </div>
+                </div>
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Team Details</legend>
+                        <div class="form-group">
+                            {{ form.name.label(class="form-control-label") }}
+
+                            {% if form.name.errors %}
+                            {{ form.name(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.name.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.name(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                        <div class="row"><div class="col-md-4">
+                                <div class="form-group">
+                            {{ form.player1.label(class="form-control-label mt-4") }}
+
+                            {% if form.player1.errors %}
+                            {{ form.player1(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.player1.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.player1(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group">
+                            {{ form.player1_steam.label(class="form-control-label mt-4") }}
+
+                            {% if form.player1_steam.errors %}
+                            {{ form.player1_steam(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.player1_steam.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.player1_steam(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                            </div></div>
+                        <div class="row"><div class="col-md-4">
+                                <div class="form-group">
+                            {{ form.player2.label(class="form-control-label mt-4") }}
+
+                            {% if form.player2.errors %}
+                            {{ form.player2(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.player2.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.player2(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                        </div><div class="col-md-8">
+                            <div class="form-group">
+                            {{ form.player2_steam.label(class="form-control-label mt-4") }}
+
+                            {% if form.player2_steam.errors %}
+                            {{ form.player2_steam(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.player2_steam.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.player2_steam(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                            </div></div>
+                            <div class="row"><div class="col-md-4">
+                            <div class="form-group">
+                            {{ form.player3.label(class="form-control-label mt-4") }}
+
+                            {% if form.player3.errors %}
+                            {{ form.player3(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.player3.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.player3(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                            </div><div class="col-md-8">
+                            <div class="form-group">
+                            {{ form.player3_steam.label(class="form-control-label mt-4") }}
+
+                            {% if form.player3_steam.errors %}
+                            {{ form.player3_steam(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.player3_steam.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.player3_steam(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                                    </div></div>
+                            <div class="row"><div class="col-md-4">
+                            <div class="form-group">
+                            {{ form.player4.label(class="form-control-label mt-4") }}
+
+                            {% if form.player4.errors %}
+                            {{ form.player4(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.player4.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.player4(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                            </div><div class="col-md-8">
+                            <div class="form-group">
+                            {{ form.player4_steam.label(class="form-control-label mt-4") }}
+
+                            {% if form.player4_steam.errors %}
+                            {{ form.player4_steam(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.player4_steam.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.player4_steam(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                                    </div></div>
+                            <div class="row"><div class="col-md-4">
+                            <div class="form-group">
+                            {{ form.player5.label(class="form-control-label mt-4") }}
+
+                            {% if form.player5.errors %}
+                            {{ form.player5(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.player5.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.player5(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                            </div><div class="col-md-8">
+                            <div class="form-group">
+                            {{ form.player5_steam.label(class="form-control-label mt-4") }}
+                            {% if form.player5_steam.errors %}
+                            {{ form.player5_steam(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.player5_steam.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.player5_steam(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                                </div></div>
+                    </fieldset>
+                    <div class="form-group">
+                        {{ form.submit(class="btn btn-outline-info mt-4") }}
+                    </div>
+                </form>
+            </div>
+            <div class="border-top pt-3">
+                <small class="text-primary">
+                    Password Compromised? <a class="btn btn-warning ml-4 mb-4"
+                        href="{{ url_for('changepassword') }}">Change Password</a>
+                </small>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card bg-dark text-white position-fixed" style="width: 300px;">
+                <div class="card-header">Match History</div>
+                <div class="card-body text-white">Match history is available at the given link, contact tournament admins for match demos and other related stuff.</div>
+                <div class="btn btn-primary">Matches</div>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+{% endblock %}

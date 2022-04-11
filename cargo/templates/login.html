@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block content %}
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <div class="bg-dark" style="background: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  position: relative;">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Log In</legend>
+                        <div class="form-group">
+                            {{ form.email.label(class="form-control-label") }}
+                            {% if form.email.errors %}
+                            {{ form.email(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.email(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.password.label(class="form-control-label mt-4") }}
+                            {% if form.password.errors %}
+                            {{ form.password(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.password(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                        <input type="hidden" name="next" value="{{ request.args.get('next', '') }}" />
+                    </fieldset>
+                    <div class="form-group">
+                        {{ form.submit(class="btn btn-outline-info mt-4") }}
+                    </div>
+                    <small class="text-muted ml-2 mt-2">
+                        <a href="{{ url_for('forgot_password')}}">Forgot Password?</a>
+                    </small>
+                </form>
+            </div>
+            <div class="border-top pt-3">
+                <small class="text-primary">
+                    Need An Account? <a class="btn btn-warning ml-2" href="{{ url_for('register') }}">Sign Up Now</a>
+                </small>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

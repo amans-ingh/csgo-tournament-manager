@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+<div id="content" class="text-white">
+      <div class="row">
+          <div class="col-md-12">
+              <h1>{{ tour.name }} - Registrations</h1>
+          </div>
+      </div>
+  <table class="table text-white mt-5">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name of the Team</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for team in teams %}
+      <tr>
+        <td> {{ team.id }}</td>
+        <td>
+          {{ team.name }}
+            </a>
+        </td>
+        <td>
+          {{ team.reg_accepted }}
+        </td>
+        <td>
+          <a class="btn btn-success btn-sm" href="/organise/{{ tour.id }}/accept/{{ team.id }}">Accept</a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

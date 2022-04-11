@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section>
+  <div class="container pt-5">
+    <div class="row homeSection">
+      <div class="col col-8">
+        <img src="{{url_for('static', filename='images/home1.png')}}" class="img-fluid homeImg" alt="" />
+      </div>
+      <div class="col col-4 my-auto home">
+        <h1>Hello Fellas!</h1>
+        <p class="homePara">Welcome to the Cargo Match Making system for 128-tick server experience for free.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
