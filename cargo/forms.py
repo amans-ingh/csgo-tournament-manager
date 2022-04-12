@@ -97,16 +97,16 @@ class ChangePassword(FlaskForm):
 
 
 class CreateTournament(FlaskForm):
-    name = StringField('Name of Tournament', validators=[Length(min=2, max=20)])
+    name = StringField('Name of Tournament', validators=[Length(min=2, max=50)])
     type = SelectField('Tournament Type', default='se',
                        choices=[('se', 'Single Elimination'), ('de', 'Double Elimination'), ('rr', 'Round Robin')])
     prize = StringField('Prize Pool', validators=[DataRequired()])
-    max_teams = IntegerField('Maximum Number of Participants', validators=[NumberRange(min=2, max=256), DataRequired()])
+    max_teams = IntegerField('Maximum Teams', validators=[NumberRange(min=2, max=256), DataRequired()])
     third = BooleanField('3rd/4th Decider')
-    reg_start = DateField('Registration Start Date')
-    reg_end = DateField('Registration Close Date')
-    tour_start = DateField('Tournament Start Date')
-    tour_end = DateField('Tournament End Date')
+    reg_start = DateField('Reg Start')
+    reg_end = DateField('Reg Close')
+    tour_start = DateField('Tour Start')
+    tour_end = DateField('Tour End')
     paid = BooleanField('Paid Tournament?')
     payment_info = StringField('Payment info for participants (optional)')
     submit = SubmitField('Create Tournament', validators=[DataRequired()])

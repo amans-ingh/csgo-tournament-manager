@@ -17,6 +17,14 @@
             "players": {
                 "76561198845558570": "Freddy"
             }
+        },
+        {
+            "name": "Natus Vincere",
+            "id": 2,
+            "seed": 0,
+            "players": {
+                "76561198187206155": "draGder"
+            }
         }
     ],
     "matches": {

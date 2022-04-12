@@ -6,6 +6,7 @@ from cargo.forms import RegistrationForm, LoginForm, RegisterTeamForm, ChangePas
 from flask_login import login_user, current_user, logout_user, login_required
 from cargo.functions import bracket_type, save_tournament, add_team_tournament, delete_team_tournament, load_players
 from cargo.brackets import TournamentBrackets
+import datetime
 
 
 @application.errorhandler(404)
@@ -202,6 +203,50 @@ def tournament(id):
     return render_template('error.html', user=current_user, title='Page Not Found')
 
 
+@application.route('/organise/<int:id>/settings', methods=['GET', 'POST'])
+@login_required
+def tournament_settings(id):
+    tour = Tournament.query.get(id)
+    if tour:
+        if tour.admin == current_user.id:
+            form = CreateTournament()
+            form.submit.label.text = 'Update Details'
+            if request.method == 'GET':
+                form.name.data = tour.name
+                form.type.data = tour.type
+                form.prize.data = tour.prize
+                form.max_teams.data = tour.max_teams
+                reg_start = str(tour.reg_start).split("-")
+                reg_start_data = datetime.datetime(int(reg_start[0]), int(reg_start[1]), int(reg_start[2]))
+                form.reg_start.data = reg_start_data
+                reg_end = str(tour.reg_end).split("-")
+                reg_end_data = datetime.datetime(int(reg_end[0]), int(reg_end[1]), int(reg_end[2]))
+                form.reg_end.data = reg_end_data
+                tour_start = str(tour.tour_start).split("-")
+                tour_start_data = datetime.datetime(int(tour_start[0]), int(tour_start[1]), int(tour_start[2]))
+                form.tour_start.data = tour_start_data
+                tour_end = str(tour.tour_end).split("-")
+                tour_end_data = datetime.datetime(int(tour_end[0]), int(tour_end[1]), int(tour_end[2]))
+                form.tour_end.data = tour_end_data
+                form.paid.data = tour.paid
+                form.payment_info.data = tour.payment_info
+            if form.validate_on_submit():
+                tour.name = form.name.data
+                tour.type = form.type.data
+                tour.prize = form.prize.data
+                tour.max_teams = form.max_teams.data
+                tour.reg_start = str(form.reg_start.data)
+                tour.reg_end = str(form.reg_end.data)
+                tour.tour_start = str(form.tour_start.data)
+                tour.tour_end = str(form.tour_end.data)
+                tour.paid = form.paid.data
+                tour.payment_info = form.payment_info.data
+                db.session.commit()
+                save = Tournament.query.get(id)
+                save_tournament(save)
+                return redirect(url_for('organise_tournament'))
+            return render_template('create_tournament.html', user=current_user, title='Update Tournament', form=form)
+
 @application.route('/organise/<int:id>/registrations')
 @login_required
 def organiser_registrations(id):
@@ -227,15 +272,17 @@ def organiser_team_details(tour_id, team_id):
         bracket = bracket_type(tour)
         organiser = User.query.filter_by(id=tour.admin).first()
         if tour.admin == current_user.id:
-            teamRegisted = Registration.query.filter_by(tour_id=tour_id, team_id=team_id).first()
-            if teamRegisted:
-                if teamRegisted.reg_accepted:
-                    reg_team = load_players(tour, teamRegisted)
+            teamRegistered = Registration.query.filter_by(tour_id=tour_id, team_id=team_id).first()
+            if teamRegistered:
+                if teamRegistered.reg_accepted:
+                    teamR = Team.query.get(teamRegistered.team_id)
+                    reg_team = load_players(tour, teamR)
                     reg_team.reg_accepted = True
 
                 else:
-                    reg_team = Team.query.get(teamRegisted.id)
+                    reg_team = Team.query.get(teamRegistered.team_id)
                     reg_team.reg_accepted = False
+                # raise Exception
                 return render_template('registered_details.html',
                                        user=current_user,
                                        title=tour.name,
@@ -360,5 +407,7 @@ def withdraw(id):
 def test():
     tour = Tournament.query.get(2)
     a = TournamentBrackets(tour)
-    a.single_elimination()
+    a.single_elimination(0, result={"match":0, "winnerId":1})
+    a.single_elimination(1)
+    a.single_elimination(2)
     return 'ok'

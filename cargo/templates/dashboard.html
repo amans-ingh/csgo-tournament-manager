@@ -12,21 +12,7 @@
                 <h1>Basic Settings</h1>
                 <hr>
                 Configure tournaments basic settings like name, payment information etc. <br>
-                <a class="btn btn-primary mt-2" href="/organise/1/settings">Settings</a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="bg-dark" style="background: #ffffff;
-  padding: 10px 20px;
-  border: 1px solid #dddddd;
-  border-radius: 3px;
-  margin-bottom: 20px;
-  position: relative;">
-                <h1>Placement</h1>
-                <hr>
-                Total Participants: {{tour.participants}} <br>
-                Placed Participants: 3 <br>
-                <a class="btn btn-primary mt-2" href="/organise/1/placement">Placement</a>
+                <a class="btn btn-primary mt-2" href="/organise/{{tour.id}}/settings">Settings</a>
             </div>
         </div>
         <div class="col-md-4">
@@ -43,8 +29,6 @@
                 <a class="btn btn-primary mt-2" href="/organise/{{ tour.id }}/registrations">Registrations</a>
             </div>
         </div>
-    </div>
-    <div class="row mt-5">
         <div class="col-md-4">
             <div class="bg-dark" style="background: #ffffff;
   padding: 10px 20px;
@@ -52,18 +36,23 @@
   border-radius: 3px;
   margin-bottom: 20px;
   position: relative;">
-                <h1>Structure</h1>
-                <br>
+                <h1>Servers</h1>
+                <hr>
+                Total Servers: {{tour.participants}} <br>
+                Servers Online: {{tour.participants}} <br>
+                <a class="btn btn-primary mt-2" href="/organise/{{tour.id}}/participants">Setup</a>
             </div>
         </div>
-        <div class="col-md-8">
+    </div>
+    <div class="row mt-5">
+        <div class="col-md-12">
             <div class="bg-dark" style="background: #ffffff;
   padding: 10px 20px;
   border: 1px solid #dddddd;
   border-radius: 3px;
   margin-bottom: 20px;
   position: relative;">
-                <h1>Matches & Seeding</h1>
+                <h1>Matches and Schedules</h1>
                 <br>
             </div>
         </div>
