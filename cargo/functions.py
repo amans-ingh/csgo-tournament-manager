@@ -30,7 +30,7 @@ class MyClass:
     def maps_names(self, i):
         array = self.maps(i)
         if array[0]:
-            self.map_name.append('train')
+            self.map_name.append('ancient')
         if array[1]:
             self.map_name.append('vertigo')
         if array[2]:
@@ -131,7 +131,6 @@ def add_team_tournament(tours, reg_team):
                 return False
         config['teams'].append({'name': reg_team.name,
                                 'id': reg_team.id,
-                                'seed': 0,
                                 'players': {reg_team.p1_steam_id: reg_team.p1,
                                             reg_team.p2_steam_id: reg_team.p2,
                                             reg_team.p3_steam_id: reg_team.p3,
@@ -148,13 +147,12 @@ def delete_team_tournament(tour, reg_team):
     if os.path.exists('cargo/data/' + str(tour.id) + '.json'):
         config = json.load(open('cargo/data/' + str(tour.id) + '.json'))
         for team in config['teams']:
-            if team['id'] == reg_team.id:
+            if int(team['id']) == int(reg_team.id):
                 config['teams'].remove(team)
                 con = json.dumps(config, indent=4)
                 with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
                     f.write(con)
                 return True
-            return False
         return False
     return False
 
@@ -169,17 +167,13 @@ def load_players(tour, reg_team):
                 for key in team['players']:
                     steam_id.append(key)
                     nicknames.append(team['players'][key])
-                reg_team.p1 = nicknames[0]
-                reg_team.p2 = nicknames[1]
-                reg_team.p3 = nicknames[2]
-                reg_team.p4 = nicknames[3]
-                reg_team.p5 = nicknames[4]
-                reg_team.p1_steam_id = steam_id[0]
-                reg_team.p2_steam_id = steam_id[1]
-                reg_team.p3_steam_id = steam_id[2]
-                reg_team.p4_steam_id = steam_id[3]
-                reg_team.p5_steam_id = steam_id[4]
+                for i in range(1, 6):
+                    try:
+                        exec("reg_team.p" + str(i) + " = nicknames[" + str(i-1) + "]")
+                        exec("reg_team.p" + str(i) + "_steam_id = steam_id[" + str(i - 1) + "]")
+                    except IndexError:
+                        exec("reg_team.p" + str(i) + " = None")
+                        exec("reg_team.p" + str(i) + "_steam_id = None")
                 return reg_team
-            return False
         return False
     return False

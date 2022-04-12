@@ -55,7 +55,7 @@
   border-radius: 3px;
   margin-bottom: 20px;
   position: relative;">
-                <h2>Your Team Details</h2>
+                <h2>Registered Team Details</h2>
                 <hr>
                     {% if team %}
                     <h3>{{ team.name }}</h3>
@@ -67,26 +67,36 @@
                         </tr>
                         </thead>
                         <tbody>
+                        {% if team.p1 %}
                         <tr>
                             <td>{{ team.p1 }}</td>
                             <td>{{ team.p1_steam_id }}</td>
                         </tr>
+                        {% endif %}
+                        {% if team.p2 %}
                         <tr>
                             <td>{{ team.p2 }}</td>
                             <td>{{ team.p2_steam_id }}</td>
                         </tr>
+                        {% endif %}
+                        {% if team.p3 %}
                         <tr>
                             <td>{{ team.p3 }}</td>
                             <td>{{ team.p3_steam_id }}</td>
                         </tr>
+                        {% endif %}
+                        {% if team.p4 %}
                         <tr>
                             <td>{{ team.p4 }}</td>
                             <td>{{ team.p4_steam_id }}</td>
                         </tr>
+                        {% endif %}
+                        {% if team.p5 %}
                         <tr>
                             <td>{{ team.p5 }}</td>
                             <td>{{ team.p5_steam_id }}</td>
                         </tr>
+                        {% endif %}
                         </tbody>
                     </table>
                     {% else %}
@@ -130,10 +140,13 @@
                     </tbody>
                 </table>
             </div>
-            {% if team %}
+            {% if team and not admin %}
                         <a class="btn btn-danger" href="/tournaments/{{ tour.id }}/withdraw">Withdraw Registration</a>
+                        <a class="btn btn-warning" href="/browse">Back to Browse</a>
             {% endif %}
-            <a class="btn btn-warning" href="/browse">Back to Browse</a>
+            {% if admin %}
+            <a class="btn btn-warning" href="/organise/{{tour.id}}/registrations">Back to Registration</a>
+            {% endif %}
 
         </div>
     </div>

@@ -188,7 +188,16 @@ def tournament(id):
     tour = Tournament.query.filter_by(id=id).first()
     if tour:
         if tour.admin == current_user.id:
-            return render_template('dashboard.html', user=current_user, title=tour.name, tour=tour)
+            registrations = Registration.query.filter_by(tour_id=tour.id).all()
+            num_registrations = len(registrations)
+            accepted_registrations = Registration.query.filter_by(tour_id=tour.id, reg_accepted=True).all()
+            num_accepted = len(accepted_registrations)
+            return render_template('dashboard.html',
+                                   user=current_user,
+                                   title=tour.name,
+                                   tour=tour,
+                                   num_registrations=num_registrations,
+                                   num_accepted=num_accepted)
         return render_template('unauth.html', user=current_user, title='Access Denied')
     return render_template('error.html', user=current_user, title='Page Not Found')
 
@@ -208,6 +217,35 @@ def organiser_registrations(id):
             return render_template('organiser_reg.html', user=current_user, teams=teams, tour=tour)
         return render_template('unauth.html', user=current_user, title='Unathorised')
     return render_template('error.html', user=current_user, title='Page Not Found')
+
+
+@application.route('/organise/<tour_id>/teams_details/<int:team_id>')
+@login_required
+def organiser_team_details(tour_id, team_id):
+    tour = Tournament.query.get(tour_id)
+    if tour:
+        bracket = bracket_type(tour)
+        organiser = User.query.filter_by(id=tour.admin).first()
+        if tour.admin == current_user.id:
+            teamRegisted = Registration.query.filter_by(tour_id=tour_id, team_id=team_id).first()
+            if teamRegisted:
+                if teamRegisted.reg_accepted:
+                    reg_team = load_players(tour, teamRegisted)
+                    reg_team.reg_accepted = True
+
+                else:
+                    reg_team = Team.query.get(teamRegisted.id)
+                    reg_team.reg_accepted = False
+                return render_template('registered_details.html',
+                                       user=current_user,
+                                       title=tour.name,
+                                       tour=tour, team=reg_team,
+                                       bracket=bracket,
+                                       organiser=organiser,
+                                       admin=True)
+            return render_template('error.html', title='Team Not Found', user=current_user)
+        return render_template('unauth.html', title='Not the admin', user=current_user)
+    return render_template('error.html', title='Tournament Not Found', user=current_user)
 
 
 @application.route('/organise/<int:tour_id>/accept/<int:team_id>')
@@ -308,11 +346,11 @@ def withdraw(id):
     tour = Tournament.query.get(id)
     if tour:
         my_team = Team.query.filter_by(user=current_user.id).first()
-        Registration.query.filter_by(tour_id=id, team_id=my_team.id).delete()
-        tour.reg_no = tour.reg_no - 1
         accepted = delete_team_tournament(tour, my_team)
         if accepted:
             tour.participants = tour.participants - 1
+        Registration.query.filter_by(tour_id=id, team_id=my_team.id).delete()
+        tour.reg_no = tour.reg_no - 1
         db.session.commit()
         return redirect(url_for('registered_tournaments'))
     return render_template('error.html', user=current_user, title='Page Not Found')
@@ -320,7 +358,7 @@ def withdraw(id):
 
 @application.route('/test')
 def test():
-    tour = Tournament.query.get(1)
+    tour = Tournament.query.get(2)
     a = TournamentBrackets(tour)
     a.single_elimination()
     return 'ok'

@@ -24,7 +24,7 @@
   position: relative;">
                 <h1>Placement</h1>
                 <hr>
-                Total Participants: 1 <br>
+                Total Participants: {{tour.participants}} <br>
                 Placed Participants: 3 <br>
                 <a class="btn btn-primary mt-2" href="/organise/1/placement">Placement</a>
             </div>
@@ -38,8 +38,8 @@
   position: relative;">
                 <h1>Registrations</h1>
                 <hr>
-                Total Registrations: 5 <br>
-                Accepted Registrations: 4 <br>
+                Total Registrations: {{num_registrations}} <br>
+                Accepted Registrations: {{num_accepted}} <br>
                 <a class="btn btn-primary mt-2" href="/organise/{{ tour.id }}/registrations">Registrations</a>
             </div>
         </div>
