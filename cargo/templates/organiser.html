@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+<div id="content" class="text-white">
+      <div class="row">
+          <div class="col-md-10">
+              <h1>Your Tournaments</h1>
+          </div>
+          <div class="col-md-2">
+              <a class="btn btn-success" href="{{ url_for('create_tournament') }}">Organise</a>
+          </div>
+      </div>
+  <table class="table text-white mt-5">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name of the Tournament</th>
+        <th>Participants</th>
+        <th>Registrations</th>
+        <th>Reg Last Date</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for t in tour %}
+      <tr>
+        <td> {{ t.id }}</td>
+        <td>
+            <a href="/organise/{{ t.id }}/dashboard">
+          {{ t.name }}
+            </a>
+        </td>
+        <td>
+          {{ t.participants }}/{{ t.max_teams }}
+        </td>
+        <td>
+          {{ t.reg_no }}
+        </td>
+      <td>
+          {{ t.reg_end }}
+      </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

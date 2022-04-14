@@ -110,3 +110,11 @@ class CreateTournament(FlaskForm):
     paid = BooleanField('Paid Tournament?')
     payment_info = StringField('Payment info for participants (optional)')
     submit = SubmitField('Create Tournament', validators=[DataRequired()])
+
+
+class AddServerForm(FlaskForm):
+    name = StringField('Server Name', validators=[Length(min=2, max=50)])
+    ip = StringField('IP address', validators=[Length(min=2, max=50)])
+    port = IntegerField('Port', validators=[DataRequired()])
+    password = StringField('RCON Password')
+    submit = SubmitField('Add Server', validators=[DataRequired()])

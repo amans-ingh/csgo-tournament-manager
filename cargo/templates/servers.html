@@ -1,79 +1,50 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
 {% block content %}
-{% if servers %}
-<div role="main" class="container">
-  <div class="row">
-    <div class="col-lg-8">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-      {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">
-        {{ message }}
-      </div>
-      {% endfor %}
-      {% endif %}
-      {% endwith %}
-
-      {% for server in servers %}
-
-      <div class="card bg-dark text-white mb-4">
-        <div class="card-header">
-          {{server.hostname}}
-        </div>
-        <div class="card-body ml-2 mr-2">
-          <div class="row justify-content-center bg-transparent ">
-            <div class="card-group mb-3">
-              <div class="card border-success bg-transparent">
-                <div class="card-header bg-transparent text-white">Location</div>
-                <div class="card-body text-white">{{server.location}}</div>
-              </div>
-              <div class="card border-primary bg-transparent">
-                <div class="card-header bg-transparent text-white">IP address</div>
-                <div class="card-body text-white">{{server.ip}}</div>
-              </div>
-              <div class="card border-info bg-transparent">
-                <div class="card-header bg-transparent text-white">Port</div>
-                <div class="card-body text-white">{{ server.port }}</div>
-              </div>
-              <div class="card border-warning bg-transparent">
-                <div class="card-header bg-transparent text-white">Status</div>
-                {% if server.busy %}
-                <div class="card-body text-white">Busy</div>
-                {% else %}
-                <div class="card-body text-white">Idle</div>
-                {% endif %}
-              </div>
-            </div>
+<div class="container">
+<div id="content" class="text-white">
+      <div class="row">
+          <div class="col-md-9">
+              <h1>{{ tour.name }} - Servers</h1>
           </div>
-          <div class="mt-2">
-            <a class="btn btn-danger" href="/confirmdelete/{{server.id}}">Delete</a>
+          <div class="col-md-3">
+            <div class="row">
+            <div class="col-sm-6"><a class="btn btn-warning btn-sm" href="/organise/{{tour.id}}/dashboard">Dashboard</a></div>
+            <div class="col-sm-6"><a class="btn btn-success btn-sm" href="/organise/{{tour.id}}/add_servers">Add Server</a></div>
+              </div>
           </div>
-        </div>
       </div>
-
-      {% endfor %}
-    </div>
-    <div class="col-lg-4">
-      <div class="card bg-dark text-white position-fixed" style="width: 300px;">
-        <div class="card-header">Contribute more?</div>
-        <div class="card-body text-white">This is a closed community free matchmaking service for 128-tick server
-          experience and competitive play. Please help by volunteering, collaborating or contributing.</div>
-        <a class="btn btn-primary" href="{{url_for('add_server')}}">Add Server</a>
-      </div>
-    </div>
-  </div>
+  <table class="table text-white mt-5">
+    <thead>
+      <tr>
+        <th>Name of the Server</th>
+        <th>IP</th>
+        <th>Port</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for server in servers %}
+      <tr>
+        <td>
+          {{ server.hostname }}
+        </td>
+        <td>
+          {{ server.ip }}
+        </td>
+        <td>
+          {{server.port}}
+        </td>
+        <td>
+          {{server.status}}
+        </td>
+        <td>
+          <a class="btn btn-danger btn-sm" href="/organise/{{server.id}}/delete/{{tour.id}}">Delete</a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 </div>
-{% else %}
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% endwith %}
-<div class="cover-container d-flex p-3 mx-auto flex-column text-center my-6" style="height: 88vh">
-  <main role="main" class="inner cover my-auto">
-    <h1 class="cover-heading text-white">Oops! Nothing Here</h1>
-    <p class="lead">Add a CSGO game server</p>
-    <p class="lead">
-      <a href="{{url_for('add_server')}}" class="btn btn-lg btn-secondary">Add Server</a>
-    </p>
-  </main>
 </div>
-{% endif %}
 {% endblock %}

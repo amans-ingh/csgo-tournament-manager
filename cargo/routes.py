@@ -1,8 +1,9 @@
 from flask import render_template, url_for, flash, redirect, request
 from cargo import application, bcrypt, db
-from cargo.models import User, Team, Tournament, Registration
+from cargo.models import User, Team, Tournament, Registration, Servers
+from cargo.rcon import GameServer
 from cargo.steamapi import SteamAPI
-from cargo.forms import RegistrationForm, LoginForm, RegisterTeamForm, ChangePassword, CreateTournament
+from cargo.forms import RegistrationForm, LoginForm, RegisterTeamForm, ChangePassword, CreateTournament, AddServerForm
 from flask_login import login_user, current_user, logout_user, login_required
 from cargo.functions import bracket_type, save_tournament, add_team_tournament, delete_team_tournament, load_players
 from cargo.brackets import TournamentBrackets
@@ -151,7 +152,7 @@ def forgot_password():
 def organise_tournament():
     if current_user.is_authenticated:
         tour = Tournament.query.filter_by(admin=current_user.id).all()
-        return render_template('organiser_dashboard.html', page='match_history', user=current_user,
+        return render_template('organiser.html', page='match_history', user=current_user,
                                title='Organiser Dashboard', tour=tour)
     return redirect(url_for('logout'))
 
@@ -190,6 +191,8 @@ def tournament(id):
     if tour:
         if tour.admin == current_user.id:
             registrations = Registration.query.filter_by(tour_id=tour.id).all()
+            servers = Servers.query.filter_by(location=tour.id).all()
+            num_servers = len(servers)
             num_registrations = len(registrations)
             accepted_registrations = Registration.query.filter_by(tour_id=tour.id, reg_accepted=True).all()
             num_accepted = len(accepted_registrations)
@@ -198,7 +201,8 @@ def tournament(id):
                                    title=tour.name,
                                    tour=tour,
                                    num_registrations=num_registrations,
-                                   num_accepted=num_accepted)
+                                   num_accepted=num_accepted,
+                                   num_servers=num_servers)
         return render_template('unauth.html', user=current_user, title='Access Denied')
     return render_template('error.html', user=current_user, title='Page Not Found')
 
@@ -246,6 +250,7 @@ def tournament_settings(id):
                 save_tournament(save)
                 return redirect(url_for('organise_tournament'))
             return render_template('create_tournament.html', user=current_user, title='Update Tournament', form=form)
+
 
 @application.route('/organise/<int:id>/registrations')
 @login_required
@@ -300,14 +305,17 @@ def organiser_team_details(tour_id, team_id):
 def accept_reg(tour_id, team_id):
     tour = Tournament.query.get(tour_id)
     if tour:
-        reg_team = Team.query.get(team_id)
-        if reg_team:
-            reg = Registration.query.filter_by(tour_id=tour_id, team_id=team_id).first()
-            if add_team_tournament(tour, reg_team):
-                tour.participants = tour.participants + 1
-            reg.reg_accepted = True
-            db.session.commit()
-        return redirect('/organise/' + str(tour_id) + '/registrations')
+        if tour.admin == current_user.id:
+            reg_team = Team.query.get(team_id)
+            if reg_team:
+                reg = Registration.query.filter_by(tour_id=tour_id, team_id=team_id).first()
+                if add_team_tournament(tour, reg_team):
+                    tour.participants = tour.participants + 1
+                reg.reg_accepted = True
+                db.session.commit()
+            return redirect('/organise/' + str(tour_id) + '/registrations')
+        return render_template('unauth.html', title='Not the admin', user=current_user)
+    return render_template('error.html', title='Tournament Not Found', user=current_user)
 
 
 @application.route('/browse')
@@ -403,6 +411,87 @@ def withdraw(id):
     return render_template('error.html', user=current_user, title='Page Not Found')
 
 
+@application.route('/organise/<int:id>/add_servers', methods=['GET', 'POST'])
+def add_server(id):
+    tour = Tournament.query.get(id)
+    if tour:
+        if tour.admin == current_user.id:
+            form = AddServerForm()
+            if form.validate_on_submit():
+                gs = GameServer(form.ip.data, form.port.data, form.password.data)
+                plugin_check = gs.check_plugins()
+                if plugin_check:
+                    if plugin_check["get5"]:
+                        server_ip = gs.server_ip()
+                        plugin_check2 = gs.check_plugins()
+                        if not plugin_check2:
+                            server_ip = form.ip.data
+                        existing_server = Servers.query.filter_by(ip=server_ip,
+                                                                  port=form.port.data,
+                                                                  location=tour.id).first()
+                        if existing_server:
+                            flash('Server already exists for this tournament', 'warning')
+                            return redirect(url_for('tour_servers', id=tour.id))
+                        server = Servers(hostname=form.name.data,
+                                         ip=server_ip,
+                                         port=form.port.data,
+                                         password=form.password.data,
+                                         location=tour.id,
+                                         user_id=current_user.id)
+                        serv_status = gs.server_status()
+                        if serv_status["gamestate"] == 0:
+                            server.busy = False
+                        else:
+                            server.busy = True
+                        db.session.add(server)
+                        db.session.commit()
+                    else:
+                        flash("Server details incorrect or server is down", "danger")
+                        return redirect(url_for('add_server'))
+                    return redirect(url_for('tour_servers', id=tour.id))
+                flash("Server details incorrect or server is down", "danger")
+                return redirect(url_for('add_server', id=tour.id))
+            return render_template('add_server_form.html', title='Add Server', form=form, user=current_user, tour=tour)
+        return render_template('error.html', user=current_user, title='Page Not Found')
+    return render_template('error.html', user=current_user, title='Page Not Found')
+
+
+@application.route('/organise/<int:id>/servers')
+@login_required
+def tour_servers(id):
+    tour = Tournament.query.get(id)
+    if tour:
+        if tour.admin == current_user.id:
+            all_servers = Servers.query.filter_by(location=id).all()
+            servers = []
+            for server in all_servers:
+                gs = GameServer(server.ip, server.port, server.password)
+                status = gs.server_status()
+                if status:
+                    if status["gamestate"] == 0:
+                        server.status = 'Online'
+                    else:
+                        server.status = 'Busy'
+                else:
+                    server.status = 'Offline'
+                servers.append(server)
+            return render_template('servers.html', user=current_user, servers=servers, tour=tour)
+        return render_template('unauth.html', user=current_user, title='Unathorised')
+    return render_template('error.html', user=current_user, title='Page Not Found')
+
+
+@application.route('/organise/<int:id>/delete/<int:tour_id>')
+@login_required
+def del_servers(id, tour_id):
+    server = Servers.query.get(id)
+    if server:
+        if server.user_id == current_user.id:
+            Servers.query.filter_by(id=id, location=tour_id).delete()
+            db.session.commit()
+            return redirect(url_for('tour_servers', id=tour_id))
+        return render_template('unauth.html', user=current_user, title='Unathorised')
+    return render_template('error.html', user=current_user, title='Page Not Found')
+
 @application.route('/test')
 def test():
     tour = Tournament.query.get(2)
@@ -411,3 +500,10 @@ def test():
     a.single_elimination(1)
     a.single_elimination(2)
     return 'ok'
+
+
+@application.route('/test2')
+def test2():
+    a = GameServer('129.151.45.226', '27015', 'zeroinf')
+    status = a.server_ip()
+    return status

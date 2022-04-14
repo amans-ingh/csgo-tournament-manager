@@ -4,35 +4,83 @@ import json
 from cargo import application
 
 
+async def main(loop, command, ip, port, password):
+    try:
+        rcon = await asyncio.wait_for(aiorcon.RCON.create(ip, port, password, loop), timeout=1.0)
+        output = await(rcon(command))
+        rcon.close()
+    except:
+        output = False
+    return output
+
+
 class GameServer:
-    def __init__(self, ip, port, password, match_id):
+    def __init__(self, ip, port, password):
         self.ip = ip
         self.password = password
-        self.match_id = match_id
         self.port = port
 
-    def load_match(self):
-        async def main(loop, command):
-            rcon = await aiorcon.RCON.create(self.ip, self.port, self.password, loop)
-            output = await(rcon(command))
-            rcon.close()
-            return output
-
+    def load_match(self, tour_id, round_num, match_num):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        return loop.run_until_complete(main(loop, 'get5_loadmatch_url "' + application.config['SERVER_URL'] +
-                                            '/api/match/' + str(self.match_id) + '/config"'))
+        return loop.run_until_complete(main(loop, 'get5_loadmatch_url "' +
+                                            application.config['SERVER_URL'] +
+                                            '/api/tour/' + str(tour_id) +
+                                            '/round/' + str(round_num) +
+                                            '/match/' + str(match_num) +
+                                            '/config"',
+                                            self.ip,
+                                            self.port,
+                                            self.password))
 
     def server_status(self):
-        async def main(loop, command):
-            rcon = await aiorcon.RCON.create(self.ip, self.port, self.password, loop)
-            output = await(rcon(command))
-            rcon.close()
-            return output
-
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        output = loop.run_until_complete(main(loop, 'get5_status'))
-        i = output.index('L', 0)
-        json_output = json.loads(output[0:i])
-        return json_output
+        output = loop.run_until_complete(main(loop, 'get5_status', self.ip, self.port, self.password))
+        if output:
+            try:
+                i = output.index('L', 0)
+                json_output = json.loads(output[0:i])
+                return json_output
+            except:
+                return False
+        return False
+
+    def check_plugins(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        output = loop.run_until_complete(main(loop, 'sm plugins list', self.ip, self.port, self.password))
+        if not output:
+            return False
+        result = {"get5": False, "api": False}
+        if '"Get5"' in str(output):
+            result["get5"] = True
+            result["api"] = False
+            if '"Get5 Web API Integration"' in str(output):
+                result["api"] = True
+        return result
+
+    def server_ip(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        output = loop.run_until_complete(main(loop, 'status', self.ip, self.port, self.password))
+        if output:
+            data = output.split('\n')
+            ip_add = data[2].split(' ')[-1].split(')')[0]
+            return ip_add
+        return False
+
+
+'''
+hostname: Cargo Retakes
+version : 1.38.2.4/13824 1446/8515 secure  [G:1:4332864] 
+udp/ip  : 0.0.0.0:27015  (public ip: 129.151.45.226)
+os      :  Linux
+type    :  community dedicated
+map     : de_mirage
+players : 0 humans, 0 bots (16/0 max) (hibernating)
+
+# userid name uniqueid connected ping loss state rate adr
+#end
+'''
+
