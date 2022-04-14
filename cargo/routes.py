@@ -505,5 +505,5 @@ def test():
 @application.route('/test2')
 def test2():
     a = GameServer('129.151.45.226', '27015', 'zeroinf')
-    status = a.server_ip()
+    status = a.load_match(2, 0, 0)
     return status
