@@ -8,7 +8,7 @@ import os
 application = Flask(__name__)
 application.config['SECRET_KEY'] = 'akjdb9qfucq80eb039ru348024830294whfipsdkl'
 application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-application.config['SERVER_URL'] = 'http://freddyhome.ddns.net'
+application.config['SERVER_URL'] = 'http://cargo.win'
 application.config['STEAM_API_KEY'] = '8C75B9586976DFCAF894BD72AAC00538'
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(application)
