@@ -507,3 +507,10 @@ def test2():
     a = GameServer('129.151.45.226', '27015', 'zeroinf')
     status = a.load_match(2, 0, 0)
     return status
+
+
+@application.route('/test3')
+def test2():
+    a = GameServer('129.151.45.226', '27015', 'zeroinf')
+    status = a.end_match()
+    return status

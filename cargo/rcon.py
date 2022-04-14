@@ -33,6 +33,14 @@ class GameServer:
                                             self.port,
                                             self.password))
 
+    def end_match(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        return loop.run_until_complete(main(loop, 'get5_endmatch',
+                                            self.ip,
+                                            self.port,
+                                            self.password))
+
     def server_status(self):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
