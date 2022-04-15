@@ -75,6 +75,19 @@
                             {{ form.confirm_password(class="form-control form-control-sm") }}
                             {% endif %}
                         </div>
+                        <div class="form-group">
+                            {{ form.recaptcha.label(class="form-control-label mt-4") }}
+                            {% if form.recaptcha.errors %}
+                            {{ form.recaptcha(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.recaptcha.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.recaptcha(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
                     </fieldset>
                     <div class="form-group">
                         {{ form.submit(class="btn btn-outline-info mt-4") }}

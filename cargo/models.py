@@ -10,7 +10,7 @@ def load_user(user_id):
 
 @login_manager.unauthorized_handler
 def unauthorized_callback():
-    return redirect(url_for('login', next=request.endpoint))
+    return redirect(url_for('login', next=request.full_path))
 
 
 class User(db.Model, UserMixin):

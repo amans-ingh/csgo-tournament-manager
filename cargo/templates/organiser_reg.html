@@ -28,11 +28,15 @@
             </a>
         </td>
         <td>
-          {{ team.reg_accepted }}
+          {% if team.reg_accepted %}
+          Accepted
+          {% else %}
+          Pending
+          {% endif %}
         </td>
         <td>
           {% if team.reg_accepted %}
-          Accepted
+          <a class="btn btn-danger btn-sm" href="/organise/{{ tour.id }}/delete_reg/{{ team.id }}">Remove</a>
           {% else %}
           <a class="btn btn-success btn-sm" href="/organise/{{ tour.id }}/accept/{{ team.id }}">Accept</a>
           {% endif %}

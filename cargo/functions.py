@@ -177,3 +177,81 @@ def load_players(tour, reg_team):
                 return reg_team
         return False
     return False
+
+
+def details_from_match_id(match_id):
+    tour_id = int(match_id/2048) - 1
+    match_id = match_id - 2048*(tour_id+1)
+    round_num = int(match_id/256) - 1
+    match_id = match_id - 256*(round_num + 1)
+    match_num = match_id - 1
+    return tour_id, round_num, match_num
+
+
+def veto_status(tour_id, round_num, match_num, data=False, get=True):
+    data_def = {
+        "mapstatus": {
+            "mirage": True,
+            "inferno": True,
+            "overpass": True,
+            "dust2": True,
+            "vertigo": True,
+            "train": True,
+            "nuke": True
+        },
+        "serverstatus": {
+            "ip": None,
+            "port": None
+        },
+        "voting": 1,
+        "action": "Ban"
+    }
+    if os.path.exists('cargo/data/' + str(tour_id) + '.json'):
+        config = json.load(open('cargo/data/' + str(tour_id) + '.json'))
+        if config:
+            matches = config["matches"]
+            if matches:
+                round = matches["round"+str(round_num)]
+                if round:
+                    match = round[str(match_num)]
+                    if match:
+                        if get:
+                            try:
+                                veto_data = match["vetostatus"]
+                                return veto_data
+                            except KeyError:
+                                match["vetostatus"] = data_def
+                                con = json.dumps(config, indent=4)
+                                with open('cargo/data/' + str(tour_id) + '.json', 'w+') as f:
+                                    f.write(con)
+                                return data_def
+                        else:
+                            if data:
+                                if data["auth_token"] == match["team"+str(data["team"])]["auth_token"]:
+                                    try:
+                                        banned_map = data["map"]
+                                        veto_data = match["vetostatus"]
+                                        if str(data["team"]) == str(veto_data["voting"]):
+                                            veto_data["mapstatus"][banned_map] = False
+                                            print(veto_data["voting"])
+                                            veto_data["voting"] = (int(veto_data["voting"])<<1) % 3
+                                            print(veto_data["voting"])
+                                            con = json.dumps(config, indent=4)
+                                            with open('cargo/data/' + str(tour_id) + '.json', 'w+') as f:
+                                                f.write(con)
+                                        return veto_data
+                                    except KeyError:
+                                        match["vetostatus"] = data_def
+                                        banned_map = data["map"]
+                                        veto_data = data_def
+                                        if data["team"] == veto_data["voting"]:
+                                            veto_data["mapstatus"][banned_map] = False
+                                            veto_data["voting"] = (int(veto_data["voting"])<<1) % 3
+                                            con = json.dumps(config, indent=4)
+                                            with open('cargo/data/' + str(tour_id) + '.json', 'w+') as f:
+                                                f.write(con)
+                                        return veto_data
+    return True
+
+
+

@@ -11,9 +11,11 @@ Flask==2.1.1
 Flask-Bcrypt==1.0.1
 Flask-Login==0.6.0
 Flask-RESTful==0.3.9
+flask-sock==0.5.2
 Flask-SQLAlchemy==2.5.1
 Flask-WTF==1.0.1
 greenlet==1.1.2
+h11==0.13.0
 idna==3.3
 importlib-metadata==4.11.3
 itsdangerous==2.1.2
@@ -22,10 +24,13 @@ MarkupSafe==2.1.1
 pycparser==2.21
 pytz==2022.1
 requests==2.27.1
+schedule==1.1.0
+simple-websocket==0.5.2
 six==1.16.0
 SQLAlchemy==1.4.35
 urllib3==1.26.9
 Werkzeug==2.1.1
+wsproto==1.1.0
 WTForms==2.3.3
 wtforms-html5==0.6.1
 zipp==3.8.0

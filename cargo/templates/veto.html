@@ -1,0 +1,185 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-white bg-dark mb-5">
+                <div class="card-header">
+                    {% if team1 %}
+                    {{team1["name"]}}
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if team1 %}
+            {% for player_id in team1["players"] %}
+            <div class="card text-white bg-dark mt-5">
+                <div class="card-header mt-2 mb-2">
+                    {{team1["players"][player_id]}}
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+        <div class="col-md-4">
+            <div class="content-section bg-dark text-white" id="mapchosen" style="display: none;">
+                <div class="overview">
+                    <h3>Map Decided</h3>
+                    <div class="card mb-4">
+                        <button class="btn btn-primary" id="decidedmap" disabled></button>
+                    </div>
+                    <div class="card mb-4">
+                        <a class="btn btn-primary" id="connect2server">Connect</a>
+                    </div>
+                </div>
+            </div>
+            {% if True %}
+            <div class="content-section bg-dark text-white" id="mapvetodiv">
+                <div class="overview-section mb-5">
+                    <h3> Map Veto </h3>
+                </div>
+                <div class="card mb-4">
+                    <button class="btn btn-primary" id="mirage" onclick="banMap('mirage')" disabled>Ban Mirage</button>
+                </div>
+                <div class="card mb-4">
+                    <button class="btn btn-primary" id="inferno" onclick="banMap('inferno')" disabled>Ban Inferno</button>
+                </div>
+                <div class="card mb-4">
+                    <button class="btn btn-primary" id="overpass" onclick="banMap('overpass')" disabled>Ban Overpass</button>
+                </div>
+                <div class="card mb-4">
+                    <button class="btn btn-primary" id="dust2" onclick="banMap('dust2')" disabled>Ban Dust 2</button>
+                </div>
+                <div class="card mb-4">
+                    <button class="btn btn-primary" id="vertigo" onclick="banMap('vertigo')" disabled>Ban Vertigo</button>
+                </div>
+                <div class="card mb-4">
+                    <button class="btn btn-primary" id="train" onclick="banMap('train')" disabled>Ban Train</button>
+                </div>
+                <div class="card mb-4">
+                    <button class="btn btn-primary" id="nuke" onclick="banMap('nuke')" disabled>Ban Nuke</button>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-dark mb-5">
+                <div class="card-header">
+                    {% if team2 %}
+                    {{team2["name"]}}
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if team2 %}
+            {% for player_id in team2["players"] %}
+            <div class="card text-white bg-dark mt-5">
+                <div class="card-header mt-2 mb-2">
+                    {{team2["players"][player_id]}}
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    function removeMap(map) {
+        document.getElementById(map).disabled = true;
+        document.getElementById(map).classList.remove('btn-primary');
+        document.getElementById(map).classList.add('btn-secondary');
+    };
+
+    function addMap(map) {
+        document.getElementById(map).disabled = false;
+        document.getElementById(map).classList.remove('btn-secondary');
+        document.getElementById(map).classList.add('btn-primary');
+    };
+
+    function controlVoting(action) {
+        document.getElementById('mirage').disabled = action;
+        document.getElementById('inferno').disabled = action;
+        document.getElementById('dust2').disabled = action;
+        document.getElementById('vertigo').disabled = action;
+        document.getElementById('train').disabled = action;
+        document.getElementById('nuke').disabled = action;
+        document.getElementById('overpass').disabled = action;
+    };
+
+    function banMap(map) {
+        let decision = '{"auth_token": "{{auth_token}}", "matchid": "{{matchid}}", "team": "{{my_team_num}}", "map": "' + map  + '"}'
+        removeMap(map);
+        controlVoting(true);
+        socket2.send(decision)
+    };
+
+    function inHTML(map, action) {
+        document.getElementById(map).innerHTML = action + " " + map;
+    };
+
+    function hidediv(id) {
+        document.getElementById(id).style.display = 'none';
+    };
+
+    function showdiv(id) {
+        document.getElementById(id).style.display = 'block';
+    };
+
+    function mapstatus(data, map) {
+        if (data.mapstatus[map]) {
+            addMap(map);
+        }
+        else {
+            removeMap(map);
+        };
+    };
+
+    function task(data_string) {
+        let data = JSON.parse(data_string);
+        if (data.voting == {{my_team_num}}) {
+            controlVoting(false);
+            for (const map in data.mapstatus) {
+                mapstatus(data, map);
+                inHTML(map, data.action);
+            };
+        }
+        else {
+            for (const map in data.mapstatus) {
+                mapstatus(data, map);
+                inHTML(map, data.action);
+            };
+            controlVoting(true);
+        };
+
+    };
+
+
+    const socket2 = new WebSocket('ws://' + '127.0.0.1:5000'+ '/matchpage');
+    const socket = new WebSocket('ws://' + '127.0.0.1:5000'+ '/matchdata');
+
+    socket.addEventListener('message', ev => {
+        task(ev.data);
+    });
+
+
+</script>
+<!--<script>-->
+<!--      const log = (text, color) => {-->
+<!--        document.getElementById('log').innerHTML = `<span style="color: ${color}">${text}</span><br>`;-->
+<!--      };-->
+
+<!--      const socket = new WebSocket('ws://' + '127.0.0.1:5000'+ '/echo');-->
+<!--      socket.addEventListener('message', ev => {-->
+<!--        log(ev.data, 'blue');-->
+<!--      });-->
+<!--      document.getElementById('form').onsubmit = ev => {-->
+<!--        ev.preventDefault();-->
+<!--        const textField = document.getElementById('text');-->
+<!--        log('>>> ' + textField.value, 'red');-->
+<!--        socket.send(textField.value);-->
+<!--        textField.value = '';-->
+<!--      };-->
+<!--    </script>-->
+{% endblock %}

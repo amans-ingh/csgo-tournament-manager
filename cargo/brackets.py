@@ -10,16 +10,20 @@ class TournamentBrackets:
     def single_elimination(self, round, result=None):
         if os.path.exists('cargo/data/' + str(self.tour.id) + '.json'):
             config = json.load(open('cargo/data/' + str(self.tour.id) + '.json'))
+            r_num = 0
             try:
-                number_of_rounds = config['basic']['total_rounds_se']
-            except KeyError:
-                number_of_rounds = 0
-                for i in range(8):
-                    if self.tour.max_teams <= 2 ** i:
-                        break
-                    number_of_rounds = number_of_rounds + 1
-                config['basic']['total_rounds_se'] = number_of_rounds
+                r_num = config['basic']['total_rounds_se']
+            except:
+                pass
+            number_of_rounds = 0
+            for i in range(8):
+                if self.tour.max_teams <= 2 ** i:
+                    break
+                number_of_rounds = number_of_rounds + 1
+            config['basic']['total_rounds_se'] = number_of_rounds
             total_positions = 2 ** int(config['basic']['total_rounds_se'])
+            if r_num > number_of_rounds:
+                config["matches"] = {}
 
             # Alternate seeding
             seeding = [None] * total_positions
@@ -51,20 +55,22 @@ class TournamentBrackets:
                     for match in range(2 ** (number_of_rounds - 1 - round)):
                         m = matchData[str(match)]
                         m['title'] = 'Round ' + str(round) + ' Match ' + str(match)
-                        m['team1'] = seeding[2 * match],
+                        m['team1'] = seeding[2 * match]
                         m['team2'] = seeding[2 * match + 1]
                     if result:
-                        match = matchData[result["match"]]
+                        match = matchData[str(result["match"])]
                         winnerId = result["winnerId"]
                         winner = None
                         try:
-                            if match["team1"]["id"] == winnerId:
-                                winner = match["team1"]
+                            if match["team1"]:
+                                if match["team1"]["id"] == winnerId:
+                                    winner = match["team1"]
                         except KeyError:
                             pass
                         try:
-                            if match["team1"]["id"] == winnerId:
-                                winner = match["team1"]
+                            if match["team2"]:
+                                if match["team2"]["id"] == winnerId:
+                                    winner = match["team2"]
                         except KeyError:
                             pass
                         if winner:
@@ -85,24 +91,24 @@ class TournamentBrackets:
                         winnerId = result["winnerId"]
                         winner = None
                         try:
-                            if match["team1"]["id"] == winnerId:
-                                winner = match["team1"]
+                            if match["team1"]:
+                                if match["team1"]["id"] == winnerId:
+                                    winner = match["team1"]
                         except KeyError:
                             pass
                         try:
-                            if match["team1"]["id"] == winnerId:
-                                winner = match["team1"]
+                            if match["team2"]:
+                                if match["team2"]["id"] == winnerId:
+                                    winner = match["team2"]
                         except KeyError:
                             pass
                         if winner:
                             match["winner"] = winner
                 matches['round' + str(round)] = matchData
 
-
-
             if round:
                 try:
-                    matchData = config["matches"]["round"+str(round)]
+                    matchData = config["matches"]["round" + str(round)]
                     # Update other matches
                     for match in range(2 ** (number_of_rounds - 1 - round)):
                         m = matchData[str(match)]
@@ -115,7 +121,7 @@ class TournamentBrackets:
                         except:
                             team2 = None
                         m['title'] = 'Round ' + str(round) + ' Match ' + str(match)
-                        m['team1'] = team1,
+                        m['team1'] = team1
                         m['team2'] = team2
                     if result:
                         match = matchData[result["match"]]

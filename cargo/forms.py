@@ -1,4 +1,4 @@
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, IntegerField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
@@ -12,6 +12,7 @@ class RegistrationForm(FlaskForm):
     email = StringField('Email', validators=[Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[EqualTo('password')])
+    recaptcha = RecaptchaField()
     submit = SubmitField('Sign Up')
 
     def validate_email(self, email):
@@ -101,7 +102,7 @@ class CreateTournament(FlaskForm):
     type = SelectField('Tournament Type', default='se',
                        choices=[('se', 'Single Elimination'), ('de', 'Double Elimination'), ('rr', 'Round Robin')])
     prize = StringField('Prize Pool', validators=[DataRequired()])
-    max_teams = IntegerField('Maximum Teams', validators=[NumberRange(min=2, max=256), DataRequired()])
+    max_teams = IntegerField('Maximum Teams *', validators=[NumberRange(min=2, max=256), DataRequired()])
     third = BooleanField('3rd/4th Decider')
     reg_start = DateField('Reg Start')
     reg_end = DateField('Reg Close')
@@ -118,3 +119,21 @@ class AddServerForm(FlaskForm):
     port = IntegerField('Port', validators=[DataRequired()])
     password = StringField('RCON Password')
     submit = SubmitField('Add Server', validators=[DataRequired()])
+
+
+class ScheduleMatch(FlaskForm):
+    date = DateField('Date', validators=[DataRequired()])
+    time = StringField('Time (HH:MM)(24-Hour)')
+    submit = SubmitField('Save')
+
+    def validate_time(self, time):
+        if ":" not in str(time.data):
+            raise ValidationError("Incorrect time format")
+        t = str(time.data).replace(' ', '').split(':')
+        try:
+            hh = int(t[0])
+            mm = int(t[1])
+        except:
+            raise ValidationError("Incorrect time format")
+        if not (0<=hh<24 and 0<=mm<=59):
+            raise ValidationError("Incorrect time entered")

@@ -54,6 +54,75 @@
   position: relative;">
                 <h1>Matches and Schedules</h1>
                 <br>
+                <table class="table text-white mt-5">
+                    <thead>
+                      <tr>
+                        <th>Team 1</th>
+                        <th>Team 2</th>
+                        <th>Round</th>
+                        <th>Match</th>
+                        <th>Date</th>
+                          <th>Time</th>
+                          <th>Winner</th>
+                          <th>Actions</th>
+                      </tr>
+                    </thead>
+                    {% if matches %}
+
+                    <tbody>
+                    {% for round in matches %}
+                    {% for e_match in matches[round] %}
+                      <tr>
+                        <td>
+                            {% if matches[round][e_match]["team1"] %}
+                            {{ matches[round][e_match]["team1"]["name"] }}
+                            {% else %}
+                            TBD
+                            {% endif %}
+                        </td>
+                        <td>
+                          {% if matches[round][e_match]["team2"] %}
+                            {{ matches[round][e_match]["team2"]["name"] }}
+                            {% else %}
+                            TBD
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{round}}
+                        </td>
+                        <td>
+                            {{e_match}}
+                        </td>
+                          <td>
+                            {% if matches[round][e_match]["date"] %}
+                              {{matches[round][e_match]["date"]}}
+                            {% else %}
+                            TBD
+                            {% endif %}
+                        </td>
+                          <td>
+                            {% if matches[round][e_match]["time"] %}
+                              {{matches[round][e_match]["time"]}}
+                            {% else %}
+                            TBD
+                            {% endif %}
+                        </td>
+                          <td>
+                              {% if matches[round][e_match]["winner"] %}
+                            {{ matches[round][e_match]["winner"]["name"] }}
+                            {% else %}
+                            TBD
+                            {% endif %}
+                          </td>
+                        <td>
+                          <a class="btn btn-warning btn-sm" href="/organise/{{tour.id}}/round/{{round}}/match/{{e_match}}">Reschedule</a>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                    {% endif %}
+                  </table>
             </div>
         </div>
     </div>

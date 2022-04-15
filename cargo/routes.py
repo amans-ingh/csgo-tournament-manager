@@ -1,12 +1,19 @@
+import json
+import os
+import time
+
 from flask import render_template, url_for, flash, redirect, request
-from cargo import application, bcrypt, db
+from cargo import application, bcrypt, db, sock
 from cargo.models import User, Team, Tournament, Registration, Servers
 from cargo.rcon import GameServer
 from cargo.steamapi import SteamAPI
-from cargo.forms import RegistrationForm, LoginForm, RegisterTeamForm, ChangePassword, CreateTournament, AddServerForm
+from cargo.forms import RegistrationForm, LoginForm, RegisterTeamForm, ChangePassword, CreateTournament, AddServerForm, \
+    ScheduleMatch
 from flask_login import login_user, current_user, logout_user, login_required
-from cargo.functions import bracket_type, save_tournament, add_team_tournament, delete_team_tournament, load_players
+from cargo.functions import bracket_type, save_tournament, add_team_tournament, delete_team_tournament, load_players, \
+    details_from_match_id, veto_status
 from cargo.brackets import TournamentBrackets
+from secrets import token_hex
 import datetime
 
 
@@ -180,6 +187,10 @@ def create_tournament():
             db.session.commit()
             save = Tournament.query.filter_by(admin=current_user.id).all()
             save_tournament(save[-1])
+            tourney_matches = TournamentBrackets(tournament)
+            if form.type.data == 'se':
+                for i in range(8):
+                    tourney_matches.single_elimination(i)
             return redirect(url_for('organise_tournament'))
         return render_template('create_tournament.html', user=current_user, title='Create Tournament', form=form)
 
@@ -196,13 +207,21 @@ def tournament(id):
             num_registrations = len(registrations)
             accepted_registrations = Registration.query.filter_by(tour_id=tour.id, reg_accepted=True).all()
             num_accepted = len(accepted_registrations)
+            matches = None
+            if os.path.exists('cargo/data/' + str(tour.id) + '.json'):
+                config = json.load(open('cargo/data/' + str(tour.id) + '.json'))
+                try:
+                    matches = config["matches"]
+                except KeyError:
+                    matches = None
             return render_template('dashboard.html',
                                    user=current_user,
                                    title=tour.name,
                                    tour=tour,
                                    num_registrations=num_registrations,
                                    num_accepted=num_accepted,
-                                   num_servers=num_servers)
+                                   num_servers=num_servers,
+                                   matches=matches)
         return render_template('unauth.html', user=current_user, title='Access Denied')
     return render_template('error.html', user=current_user, title='Page Not Found')
 
@@ -238,7 +257,8 @@ def tournament_settings(id):
                 tour.name = form.name.data
                 tour.type = form.type.data
                 tour.prize = form.prize.data
-                tour.max_teams = form.max_teams.data
+                if not tour.third:
+                    tour.max_teams = form.max_teams.data
                 tour.reg_start = str(form.reg_start.data)
                 tour.reg_end = str(form.reg_end.data)
                 tour.tour_start = str(form.tour_start.data)
@@ -248,7 +268,11 @@ def tournament_settings(id):
                 db.session.commit()
                 save = Tournament.query.get(id)
                 save_tournament(save)
-                return redirect(url_for('organise_tournament'))
+                tourney_matches = TournamentBrackets(save)
+                if form.type.data == 'se':
+                    for i in range(8):
+                        tourney_matches.single_elimination(i)
+                return redirect(url_for('tournament', id=tour.id))
             return render_template('create_tournament.html', user=current_user, title='Update Tournament', form=form)
 
 
@@ -308,15 +332,45 @@ def accept_reg(tour_id, team_id):
         if tour.admin == current_user.id:
             reg_team = Team.query.get(team_id)
             if reg_team:
+                regs = Registration.query.filter_by(tour_id=tour_id, reg_accepted=True).all()
+                if len(regs) >= int(tour.max_teams):
+                    flash('Registrations Full! Delete a registration to allow this team.', 'danger')
+                    return redirect('/organise/' + str(tour_id) + '/registrations')
                 reg = Registration.query.filter_by(tour_id=tour_id, team_id=team_id).first()
                 if add_team_tournament(tour, reg_team):
                     tour.participants = tour.participants + 1
                 reg.reg_accepted = True
                 db.session.commit()
+                tourney_matches = TournamentBrackets(tour)
+                if tour.type == 'se':
+                    for i in range(8):
+                        tourney_matches.single_elimination(i)
             return redirect('/organise/' + str(tour_id) + '/registrations')
         return render_template('unauth.html', title='Not the admin', user=current_user)
     return render_template('error.html', title='Tournament Not Found', user=current_user)
 
+
+@application.route('/organise/<int:tour_id>/delete_reg/<int:team_id>')
+@login_required
+def delete_reg(tour_id, team_id):
+    tour = Tournament.query.get(tour_id)
+    if tour:
+        if tour.admin == current_user.id:
+            reg_team = Team.query.get(team_id)
+            if reg_team:
+                reg = Registration.query.filter_by(tour_id=tour_id, team_id=team_id).first()
+                my_team = Team.query.get(team_id)
+                if delete_team_tournament(tour, my_team):
+                    tour.participants = tour.participants - 1
+                reg.reg_accepted = False
+                db.session.commit()
+                tourney_matches = TournamentBrackets(tour)
+                if tour.type == 'se':
+                    for i in range(8):
+                        tourney_matches.single_elimination(i)
+            return redirect('/organise/' + str(tour_id) + '/registrations')
+        return render_template('unauth.html', title='Not the admin', user=current_user)
+    return render_template('error.html', title='Tournament Not Found', user=current_user)
 
 @application.route('/browse')
 def browse_tournament():
@@ -492,25 +546,104 @@ def del_servers(id, tour_id):
         return render_template('unauth.html', user=current_user, title='Unathorised')
     return render_template('error.html', user=current_user, title='Page Not Found')
 
-@application.route('/test')
-def test():
-    tour = Tournament.query.get(2)
-    a = TournamentBrackets(tour)
-    a.single_elimination(0, result={"match":0, "winnerId":1})
-    a.single_elimination(1)
-    a.single_elimination(2)
-    return 'ok'
+
+@application.route('/organise/<int:tour_id>/round/<string:round_num>/match/<int:match_num>', methods=['GET', 'POST'])
+@login_required
+def schedule_match(tour_id, round_num, match_num):
+    tour = Tournament.query.get(tour_id)
+    if tour:
+        if tour.admin == current_user.id:
+            form = ScheduleMatch()
+            if form.validate_on_submit():
+                if os.path.exists('cargo/data/' + str(tour_id) + '.json'):
+                    config = json.load(open('cargo/data/' + str(tour_id) + '.json'))
+                    match = config["matches"][round_num][str(match_num)]
+                    match["date"] = str(form.date.data)
+                    match["time"] = form.time.data
+                    config = json.dumps(config, indent=4)
+                    with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
+                        f.write(config)
+                return redirect(url_for('tournament', id=tour.id))
+            return render_template('schedule_match.html', user=current_user, tour=tour, form=form)
+        return render_template('unauth.html', user=current_user, title='Unathorised')
+    return render_template('error.html', user=current_user, title='Page Not Found')
 
 
-@application.route('/test2')
-def test2():
-    a = GameServer('129.151.45.226', '27015', 'zeroinf')
-    status = a.load_match(2, 0, 0)
-    return status
+@application.route('/matchpage/<int:matchid>/se')
+@login_required
+def matchpage(matchid):
+    tour_id, round_num, match_num = details_from_match_id(matchid)
+    tour = Tournament.query.get(tour_id)
+    if tour:
+        if os.path.exists('cargo/data/' + str(tour.id) + '.json'):
+            config = json.load(open('cargo/data/' + str(tour.id) + '.json'))
+        else:
+            return render_template('error.html', user=current_user, title='Page Not Found')
+        matches = config["matches"]
+        if matches:
+            round = matches["round" + str(round_num)]
+            if round:
+                match = round[str(match_num)]
+            else:
+                return render_template('error.html', user=current_user, title='Page Not Found')
+        else:
+            return render_template('error.html', user=current_user, title='Page Not Found')
+    else:
+        return render_template('error.html', user=current_user, title='Page Not Found')
+    team1 = match["team1"]
+    team2 = match["team2"]
+    if team1:
+        team1_id = team1["id"]
+    else:
+        team1_id = None
+    if team2:
+        team2_id = team2["id"]
+    else:
+        team2_id = None
+    my_team = Team.query.filter_by(user=current_user.id).first()
+    if my_team.id == team1_id:
+        auth_token = token_hex(20)
+        team1["auth_token"] = auth_token
+        config = json.dumps(config, indent=4)
+        with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
+            f.write(config)
+        return render_template('veto.html', user=current_user, title='Match Veto Page', team1=team1, team2=team2,
+                               auth_token=auth_token, my_team_num=1, matchid=matchid)
+    if my_team.id == team2_id:
+        auth_token = token_hex(20)
+        team2["auth_token"] = auth_token
+        config = json.dumps(config, indent=4)
+        with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
+            f.write(config)
+        return render_template('veto.html', user=current_user, title='Match Veto Page', team1=team1, team2=team2,
+                               auth_token=auth_token, my_team_num=2, matchid=matchid)
+    return render_template('unauth.html', user=current_user, title='Unathorised')
 
 
-@application.route('/test3')
-def test2():
-    a = GameServer('129.151.45.226', '27015', 'zeroinf')
-    status = a.end_match()
-    return status
+@sock.route('/matchpage')
+def matchpage_sock(ws):
+    while True:
+        data_received = ws.receive()
+        data_received = json.loads(data_received)
+        matchid = int(data_received["matchid"])
+        tour_id, round_num, match_num = details_from_match_id(matchid)
+        tour = Tournament.query.get(tour_id)
+        if tour:
+            if os.path.exists('cargo/data/' + str(tour.id) + '.json'):
+                config = json.load(open('cargo/data/' + str(tour.id) + '.json'))
+                matches = config["matches"]
+                if matches:
+                    round = matches["round" + str(round_num)]
+                    if round:
+                        match = round[str(match_num)]
+                        if match:
+                            veto_status(tour_id, round_num, match_num, data=data_received, get=False)
+
+
+@sock.route('/matchdata')
+def echo(ws):
+    while True:
+        data = veto_status(8, 0, 0, data=False, get=True)
+    # data = ws.receive()
+        ws.send(json.dumps(data))
+        time.sleep(1)
