@@ -9,7 +9,7 @@ async def main(loop, command, ip, port, password):
         rcon = await asyncio.wait_for(aiorcon.RCON.create(ip, port, password, loop), timeout=1.0)
         output = await(rcon(command))
         rcon.close()
-    except:
+    except KeyError:
         output = False
     return output
 
@@ -47,8 +47,12 @@ class GameServer:
         output = loop.run_until_complete(main(loop, 'get5_status', self.ip, self.port, self.password))
         if output:
             try:
-                i = output.index('L', 0)
-                json_output = json.loads(output[0:i])
+                print(output)
+                if 'L' in output:
+                    i = output.index('L', 0)
+                    json_output = json.loads(output[0:i])
+                else:
+                    json_output = json.loads(output)
                 return json_output
             except:
                 return False

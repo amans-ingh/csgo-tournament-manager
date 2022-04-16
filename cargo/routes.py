@@ -493,8 +493,9 @@ def add_server(id):
                                          location=tour.id,
                                          user_id=current_user.id)
                         serv_status = gs.server_status()
-                        if serv_status["gamestate"] == 0:
-                            server.busy = False
+                        if serv_status:
+                            if serv_status["gamestate"] == 0:
+                                server.busy = False
                         else:
                             server.busy = True
                         db.session.add(server)

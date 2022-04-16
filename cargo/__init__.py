@@ -13,8 +13,8 @@ application.config['SERVER_URL'] = 'http://cargo.win'
 application.config['STEAM_API_KEY'] = '8C75B9586976DFCAF894BD72AAC00538'
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 application.config['RECAPTCHA_USE_SSL'] = False
-application.config['RECAPTCHA_PUBLIC_KEY'] =  '6Lcd7nYfAAAAAOK2uN8DOzO70JQkdiIyPUsbvXby' #'6Ld0e3kfAAAAAHphQe1woWMg_pTV-KaQA-Iwq9tA'
-application.config['RECAPTCHA_PRIVATE_KEY'] = '6Lcd7nYfAAAAAFebpRtfVbvSC9aNoNIMyjuKPsKa' #'6Ld0e3kfAAAAAI61GXS-StZ4gyeSI1wiskhIDQPZ'
+application.config['RECAPTCHA_PUBLIC_KEY'] = '6Lcd7nYfAAAAAOK2uN8DOzO70JQkdiIyPUsbvXby' # '6Ld0e3kfAAAAAHphQe1woWMg_pTV-KaQA-Iwq9tA'
+application.config['RECAPTCHA_PRIVATE_KEY'] = '6Lcd7nYfAAAAAFebpRtfVbvSC9aNoNIMyjuKPsKa' # '6Ld0e3kfAAAAAI61GXS-StZ4gyeSI1wiskhIDQPZ'
 application.config['RECAPTCHA_OPTIONS'] = {'theme': 'dark'}
 sock = Sock(application)
 
