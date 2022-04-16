@@ -2,7 +2,7 @@
 {% block content %}
 <main role="main" class="container">
     <div class="row">
-        <div class="col-lg-8">
+        <div class="col-lg-10">
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             {% for category, message in messages %}
@@ -140,9 +140,93 @@
                     </tbody>
                 </table>
             </div>
+            <div class="bg-dark" style="background: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  position: relative;">
+                <h1>Matches and Schedules</h1>
+                <br>
+                <table class="table text-white mt-5">
+                    <thead>
+                      <tr>
+                        <th>Team 1</th>
+                        <th>Team 2</th>
+                        <th>Round</th>
+                        <th>Match</th>
+                        <th>Date</th>
+                          <th>Time</th>
+                          <th>Winner</th>
+                          <th>Actions</th>
+                      </tr>
+                    </thead>
+                    {% if matches %}
+
+                    <tbody>
+                    {% for round in matches %}
+                    {% for e_match in matches[round] %}
+                      <tr>
+                        <td>
+                            {% if matches[round][e_match]["team1"] %}
+                            {{ matches[round][e_match]["team1"]["name"] }}
+                            {% else %}
+                            TBD
+                            {% endif %}
+                        </td>
+                        <td>
+                          {% if matches[round][e_match]["team2"] %}
+                            {{ matches[round][e_match]["team2"]["name"] }}
+                            {% else %}
+                            TBD
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{round}}
+                        </td>
+                        <td>
+                            {{e_match}}
+                        </td>
+                          <td>
+                            {% if matches[round][e_match]["date"] %}
+                              {{matches[round][e_match]["date"]}}
+                            {% else %}
+                            TBD
+                            {% endif %}
+                        </td>
+                          <td>
+                            {% if matches[round][e_match]["time"] %}
+                              {{matches[round][e_match]["time"]}}
+                            {% else %}
+                            TBD
+                            {% endif %}
+                        </td>
+                          <td>
+                              {% if matches[round][e_match]["winner"] %}
+                            {{ matches[round][e_match]["winner"]["name"] }}
+                            {% else %}
+                            TBD
+                            {% endif %}
+                          </td>
+                        <td>
+                            {% if matchid %}
+                            <a class="btn btn-warning btn-sm" href="/matchpage/{matchid}/{{tour_type}}">Veto Page</a>
+                          <a class="btn btn-success btn-sm" href="/matchdetails/{matchid}/{{tour_type}}">Match Page</a>
+                            {% else %}
+                            <button class="btn btn-warning btn-sm" disabled>Veto Page</button>
+                            <button class="btn btn-success btn-sm" disabled>Match Page</button>
+                            {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                    {% endif %}
+                  </table>
+            </div>
             {% if team and not admin %}
-                        <a class="btn btn-danger" href="/tournaments/{{ tour.id }}/withdraw">Withdraw Registration</a>
-                        <a class="btn btn-warning" href="/browse">Back to Browse</a>
+                        <a class="btn btn-danger mb-5" href="/tournaments/{{ tour.id }}/withdraw">Withdraw Registration</a>
+                        <a class="btn btn-warning mb-5" href="/browse">Back to Browse</a>
             {% endif %}
             {% if admin %}
             <a class="btn btn-warning" href="/organise/{{tour.id}}/registrations">Back to Registration</a>

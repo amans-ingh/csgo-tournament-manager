@@ -207,6 +207,9 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True):
         },
         "voting": 1,
         "action": "Ban",
+        "bo": 1,
+        "team1_online": False,
+        "team2_online": False,
         "completed": False
     }
     if os.path.exists('cargo/data/' + str(tour_id) + '.json'):

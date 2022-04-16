@@ -38,6 +38,9 @@ class Tournament(db.Model):
     reg_open = db.Column(db.Boolean, default=True)
     paid = db.Column(db.Boolean, default=False)
     payment_info = db.Column(db.String)
+    rules = db.Column(db.String)
+    admin_wh = db.Column(db.String)
+    players_wh = db.Column(db.String)
     admin = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 
@@ -51,6 +54,8 @@ class Registration(db.Model):
 class Match(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tour = db.Column(db.Integer, db.ForeignKey('tournament.id'))
+    round_num = db.Column(db.Integer)
+    match_num = db.Column(db.Integer)
     status = db.Column(db.Integer, nullable=False, default=0)
     maps = db.Column(db.Integer, nullable=False, default=127)
     ip = db.Column(db.String)
@@ -62,6 +67,7 @@ class Match(db.Model):
     server_id = db.Column(db.Integer, db.ForeignKey('servers.id'))
     team1_score = db.Column(db.Integer)
     team2_score = db.Column(db.Integer)
+    api_key = db.Column(db.String)
 
 
 class Servers(db.Model):
@@ -87,12 +93,16 @@ class Team(db.Model):
     p4 = db.Column(db.String)
     p5 = db.Column(db.String)
     p6 = db.Column(db.String)
+    p7 = db.Column(db.String)
+    p8 = db.Column(db.String)
     p1_steam_id = db.Column(db.String)
     p2_steam_id = db.Column(db.String)
     p3_steam_id = db.Column(db.String)
     p4_steam_id = db.Column(db.String)
     p5_steam_id = db.Column(db.String)
     p6_steam_id = db.Column(db.String)
+    p7_steam_id = db.Column(db.String)
+    p8_steam_id = db.Column(db.String)
 
 
 class MapStats(db.Model):
@@ -104,6 +114,24 @@ class MapStats(db.Model):
     team1_score = db.Column(db.Integer, default=0)
     team2_score = db.Column(db.Integer, default=0)
     player_stats = db.relationship('PlayerStats', backref='mapstats', lazy='dynamic')
+
+    @staticmethod
+    def get_or_create(match_id, map_number, map_name=''):
+        match = Match.query.get(match_id)
+        if match is None or map_number >= match.max_maps:
+            return None
+
+        rv = MapStats.query.filter_by(
+            match_id=match_id, map_number=map_number).first()
+        if rv is None:
+            rv = MapStats()
+            rv.match_id = match_id
+            rv.map_number = map_number
+            rv.map_name = map_name
+            rv.team1_score = 0
+            rv.team2_score = 0
+            db.session.add(rv)
+        return rv
 
 
 class PlayerStats(db.Model):
@@ -137,4 +165,22 @@ class PlayerStats(db.Model):
     firstkill_t = db.Column(db.Integer, default=0)
     firstkill_ct = db.Column(db.Integer, default=0)
     firstdeath_t = db.Column(db.Integer, default=0)
-    firstdeath_Ct = db.Column(db.Integer, default=0)
+    firstdeath_ct = db.Column(db.Integer, default=0)
+
+    @staticmethod
+    def get_or_create(matchid, mapnumber, steam_id):
+        mapstats = MapStats.get_or_create(matchid, mapnumber)
+        if len(mapstats.player_stats.all()) >= 40:  # Cap on players per map
+            return None
+
+        rv = mapstats.player_stats.filter_by(steam_id=steam_id).first()
+
+        if rv is None:
+            rv = PlayerStats()
+            rv.match_id = matchid
+            rv.map_number = mapstats.id
+            rv.steam_id = steam_id
+            rv.map_id = mapstats.id
+            db.session.add(rv)
+
+        return rv

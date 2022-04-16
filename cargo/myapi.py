@@ -2,8 +2,6 @@ import json
 import os
 
 from flask_restful import Resource
-from cargo.models import Match
-from cargo.functions import MyClass
 from cargo import application
 
 

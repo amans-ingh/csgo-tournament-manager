@@ -2,7 +2,7 @@
 {% block content %}
 <main role="main" class="container">
     <div class="row">
-        <div class="col-lg-8">
+        <div class="col-lg-10">
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             {% for category, message in messages %}
@@ -123,17 +123,13 @@
                         <td>Email</td>
                         <td>{{ organiser.email }}</td>
                     </tr>
-                    <tr>
-                        <td>Telegram</td>
-                        <td>8959740385</td>
-                    </tr>
                     </tbody>
                 </table>
             </div>
             {% if team %}
-                        <a class="btn btn-info" href="/browse/{{ tour.id }}/register/confirm">Request Registration</a>
+                        <a class="btn btn-info mb-5" href="/browse/{{ tour.id }}/register/confirm">Request Registration</a>
             {% endif %}
-            <a class="btn btn-warning" href="/browse">Back to Browse</a>
+            <a class="btn btn-warning mb-5" href="/browse">Back to Browse</a>
 
         </div>
     </div>

@@ -6,10 +6,10 @@ from cargo import application
 
 async def main(loop, command, ip, port, password):
     try:
-        rcon = await asyncio.wait_for(aiorcon.RCON.create(ip, port, password, loop), timeout=1.0)
+        rcon = await asyncio.wait_for(aiorcon.RCON.create(ip, port, password, loop), timeout=2.0)
         output = await(rcon(command))
         rcon.close()
-    except KeyError:
+    except:
         output = False
     return output
 
@@ -80,18 +80,3 @@ class GameServer:
             ip_add = data[2].split(' ')[-1].split(')')[0]
             return ip_add
         return False
-
-
-'''
-hostname: Cargo Retakes
-version : 1.38.2.4/13824 1446/8515 secure  [G:1:4332864] 
-udp/ip  : 0.0.0.0:27015  (public ip: 129.151.45.226)
-os      :  Linux
-type    :  community dedicated
-map     : de_mirage
-players : 0 humans, 0 bots (16/0 max) (hibernating)
-
-# userid name uniqueid connected ping loss state rate adr
-#end
-'''
-
