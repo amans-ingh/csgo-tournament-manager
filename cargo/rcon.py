@@ -47,7 +47,6 @@ class GameServer:
         output = loop.run_until_complete(main(loop, 'get5_status', self.ip, self.port, self.password))
         if output:
             try:
-                print(output)
                 if 'L' in output:
                     i = output.index('L', 0)
                     json_output = json.loads(output[0:i])

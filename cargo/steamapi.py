@@ -16,6 +16,7 @@ class SteamAPI:
             steam_id = url
         steam_response = requests.get('http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=' +
                                       application.config['STEAM_API_KEY'] + '&vanityurl=' + vanity_url)
+        print(steam_response)
         steam_json = steam_response.json()
         if steam_json['response']['success'] == 1:
             steam_id_final = steam_json['response']['steamid']
