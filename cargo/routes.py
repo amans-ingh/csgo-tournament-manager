@@ -640,11 +640,11 @@ def matchpage_sock(ws):
                         if match:
                             veto_data = veto_status(tour_id, round_num, match_num, data=data_received, get=False)
                             if veto_data["completed"]:
-                                server = Servers.query.filter_by(ip=veto_data["serverstatus"]["ip"], port=veto_data["serverstatus"]["port"])
-                                server.busy = True
-                                gs = GameServer(server.ip, server.port, server.password)
-                                gs.load_match(tour_id, round_num, match_num)
-                                pass
+                                server = Servers.query.filter_by(ip=veto_data["serverstatus"]["ip"], port=veto_data["serverstatus"]["port"]).first()
+                                if server:
+                                    server.busy = True
+                                    gs = GameServer(server.ip, server.port, server.password)
+                                    gs.load_match(tour_id, round_num, match_num)
 
 
 @sock.route('/matchdata/<int:matchid>')

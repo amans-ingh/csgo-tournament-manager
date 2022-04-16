@@ -16,10 +16,13 @@ class GenerateConfig:
     def find_maps(self):
         if os.path.exists('cargo/data/' + str(self.tour_id) + '.json'):
             config = json.load(open('cargo/data/' + str(self.tour_id) + '.json'))
-            map_finder = MyClass()
             maps_to_play = []
+            maps_to_be_played = []
             try:
-                maps_to_be_played = map_finder.maps_names(config["matches"]["round"+str(self.round_num)][str(self.match_num)]["maps"])
+                maplist = config["matches"]["round"+str(self.round_num)][str(self.match_num)]["vetostatus"]["mapstatus"]
+                for map in maplist:
+                    if maplist[map]:
+                        maps_to_be_played.append(map)
             except KeyError:
                 return ['de_mirage']
             for maps in maps_to_be_played:
