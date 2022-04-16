@@ -25,7 +25,7 @@
             <div class="content-section bg-dark text-white" id="mapchosen" style="display: none;">
                 <div class="overview">
                     <h3>Map Decided</h3>
-                    <div class="card mb-4">
+                    <div class="card mb-4 mt-5">
                         <button class="btn btn-primary" id="decidedmap" disabled></button>
                     </div>
                     <div class="card mb-4">
@@ -119,6 +119,10 @@
         document.getElementById(map).innerHTML = action + " " + map;
     };
 
+    function inHTML2(div, data) {
+        document.getElementById(div).innerHTML = data;
+    };
+
     function hidediv(id) {
         document.getElementById(id).style.display = 'none';
     };
@@ -152,12 +156,28 @@
             };
             controlVoting(true);
         };
+        if (data.completed) {
+            hidediv('mapvetodiv');
+            showdiv('mapchosen');
+            let maplist = '';
+            for (const map in data.mapstatus) {
+                if (data.mapstatus[map]) {
+                    maplist += map + ' ';
+                };
+            };
+            document.getElementById('connect2server').href = 'steam://connect/'+data.serverstatus.ip+':'+data.serverstatus.port;
+            inHTML2('decidedmap', maplist);
+        }
+        else {
+            hidediv('mapchosen');
+            showdiv('mapvetodiv');
+        };
 
     };
 
 
     const socket2 = new WebSocket('ws://' + '127.0.0.1:5000'+ '/matchpage');
-    const socket = new WebSocket('ws://' + '127.0.0.1:5000'+ '/matchdata');
+    const socket = new WebSocket('ws://' + '127.0.0.1:5000'+ '/matchdata/{{matchid}}');
 
     socket.addEventListener('message', ev => {
         task(ev.data);

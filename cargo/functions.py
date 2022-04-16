@@ -1,6 +1,8 @@
 import json
 import os
 
+from cargo.models import Servers
+
 
 class MyClass:
     def __init__(self):
@@ -204,7 +206,8 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True):
             "port": None
         },
         "voting": 1,
-        "action": "Ban"
+        "action": "Ban",
+        "completed": False
     }
     if os.path.exists('cargo/data/' + str(tour_id) + '.json'):
         config = json.load(open('cargo/data/' + str(tour_id) + '.json'))
@@ -233,9 +236,16 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True):
                                         veto_data = match["vetostatus"]
                                         if str(data["team"]) == str(veto_data["voting"]):
                                             veto_data["mapstatus"][banned_map] = False
-                                            print(veto_data["voting"])
+                                            count = 0
+                                            for maps in veto_data["mapstatus"]:
+                                                if veto_data["mapstatus"][maps] == True:
+                                                    count += 1
+                                            if count == 1:
+                                                veto_data["completed"] = True
+                                                server = Servers.query.filter_by(location=tour_id, busy=False).first()
+                                                veto_data["serverstatus"]["ip"] = server.ip
+                                                veto_data["serverstatus"]["port"] = server.port
                                             veto_data["voting"] = (int(veto_data["voting"])<<1) % 3
-                                            print(veto_data["voting"])
                                             con = json.dumps(config, indent=4)
                                             with open('cargo/data/' + str(tour_id) + '.json', 'w+') as f:
                                                 f.write(con)
@@ -246,12 +256,18 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True):
                                         veto_data = data_def
                                         if data["team"] == veto_data["voting"]:
                                             veto_data["mapstatus"][banned_map] = False
+                                            count = 0
+                                            for maps in veto_data["mapstatus"]:
+                                                if veto_data["mapstatus"][maps] == True:
+                                                    count += 1
+                                            if count == 1:
+                                                veto_data["completed"] = True
+                                                server = Servers.query.filter_by(location=tour_id, busy=False).first()
+                                                veto_data["serverstatus"]["ip"] = server.ip
+                                                veto_data["serverstatus"]["port"] = server.port
                                             veto_data["voting"] = (int(veto_data["voting"])<<1) % 3
                                             con = json.dumps(config, indent=4)
                                             with open('cargo/data/' + str(tour_id) + '.json', 'w+') as f:
                                                 f.write(con)
                                         return veto_data
     return True
-
-
-

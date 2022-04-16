@@ -637,13 +637,19 @@ def matchpage_sock(ws):
                     if round:
                         match = round[str(match_num)]
                         if match:
-                            veto_status(tour_id, round_num, match_num, data=data_received, get=False)
+                            veto_data = veto_status(tour_id, round_num, match_num, data=data_received, get=False)
+                            if veto_data["completed"]:
+                                server = Servers.query.filter_by(ip=veto_data["serverstatus"]["ip"], port=veto_data["serverstatus"]["port"])
+                                server.busy = True
+                                gs = GameServer(server.ip, server.port, server.password)
+                                gs.load_match(tour_id, round_num, match_num)
+                                pass
 
 
-@sock.route('/matchdata')
-def echo(ws):
+@sock.route('/matchdata/<int:matchid>')
+def echo(ws, matchid):
     while True:
-        data = veto_status(8, 0, 0, data=False, get=True)
-    # data = ws.receive()
+        tour_id, round_num, match_num = details_from_match_id(matchid)
+        data = veto_status(tour_id, round_num, match_num, data=False, get=True)
         ws.send(json.dumps(data))
         time.sleep(1)
