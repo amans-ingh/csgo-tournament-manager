@@ -2,7 +2,7 @@
 {% block content %}
 <main role="main" class="container">
     <div class="row">
-        <div class="col-lg-8">
+        <div class="col-lg-10">
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             {% for category, message in messages %}
@@ -76,7 +76,7 @@
                         </div>
 
 
-                        <div class="row"><div class="col-md-3">
+                        <div class="row"><div class="col-md-2">
                         <div class="form-group">
                             {{ form.reg_start.label(class="form-control-label mt-4") }}
                             {% if form.reg_start.errors %}
@@ -90,7 +90,23 @@
                             {{ form.reg_start(class="form-control form-control-sm") }}
                             {% endif %}
                         </div>
-                            </div> <div class="col-md-3">
+                            </div>
+                            <div class="col-md-1">
+                        <div class="form-group">
+                            {{ form.reg_start_time.label(class="form-control-label mt-4") }}
+                            {% if form.reg_start_time.errors %}
+                            {{ form.reg_start_time(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.reg_start_time.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.reg_start_time(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                            </div>
+                            <div class="col-md-2">
                             <div class="form-group">
                             {{ form.reg_end.label(class="form-control-label mt-4") }}
                             {% if form.reg_end.errors %}
@@ -102,6 +118,21 @@
                             </div>
                             {% else %}
                             {{ form.reg_end(class="form-control form-control-sm") }}
+                            {% endif %}
+                        </div>
+                            </div>
+                            <div class="col-md-1">
+                            <div class="form-group">
+                            {{ form.reg_end_time.label(class="form-control-label mt-4") }}
+                            {% if form.reg_end_time.errors %}
+                            {{ form.reg_end_time(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.reg_end_time.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.reg_end_time(class="form-control form-control-sm") }}
                             {% endif %}
                         </div>
                             </div>
@@ -119,7 +150,8 @@
                             {{ form.tour_start(class="form-control form-control-sm") }}
                             {% endif %}
                         </div>
-                            </div> <div class="col-md-3">
+                            </div>
+                            <div class="col-md-3">
                             <div class="form-group">
                             {{ form.tour_end.label(class="form-control-label mt-4") }}
                             {% if form.tour_end.errors %}
@@ -140,7 +172,8 @@
                             <div class="col-md-4">
                             <div class="mt-5">
                             {{ form.paid.label() }} {{ form.paid(class="") }}
-                            </div></div>
+                            </div>
+                            </div>
                             <div class="col-md-8">
                             {{ form.payment_info.label(class="form-control-label mt-4") }}
                             {% if form.payment_info.errors %}
@@ -153,8 +186,62 @@
                             {% else %}
                             {{ form.payment_info(class="form-control form-control-sm") }}
                             {% endif %}
-                            </div></div>
+                            </div>
+                            </div>
                         </div>
+                        <div class="form-group">
+                            <div class="row">
+                            <div class="col-md-12">
+                            {{ form.admin_wh.label(class="form-control-label mt-4") }}
+                            {% if form.admin_wh.errors %}
+                            {{ form.admin_wh(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.admin_wh.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.admin_wh(class="form-control form-control-sm") }}
+                            {% endif %}
+                            </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                            <div class="col-md-12">
+                            {{ form.players_wh.label(class="form-control-label mt-4") }}
+                            {% if form.players_wh.errors %}
+                            {{ form.players_wh(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.players_wh.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.players_wh(class="form-control form-control-sm") }}
+                            {% endif %}
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="row">
+                            <div class="col-md-12">
+                            {{ form.rules.label(class="form-control-label mt-4") }}
+                            {% if form.rules.errors %}
+                            {{ form.rules(class="form-control form-control-sm is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.rules.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.rules(class="form-control form-control-sm") }}
+                            {% endif %}
+                            </div>
+                            </div>
+                        </div>
+
                     </fieldset>
                     <small>
                         <div class="mt-3">

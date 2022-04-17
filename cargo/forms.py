@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, IntegerField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
+from wtforms.widgets import TextArea
 from cargo.models import User
 from cargo.steamapi import SteamAPI
 from flask_login import current_user
@@ -105,11 +106,16 @@ class CreateTournament(FlaskForm):
     max_teams = IntegerField('Maximum Teams *', validators=[NumberRange(min=2, max=256), DataRequired()])
     third = BooleanField('3rd/4th Decider')
     reg_start = DateField('Reg Start')
+    reg_start_time = StringField('Time')
+    reg_end_time = StringField('Time')
     reg_end = DateField('Reg Close')
     tour_start = DateField('Tour Start')
     tour_end = DateField('Tour End')
     paid = BooleanField('Paid Tournament?')
     payment_info = StringField('Payment info for participants (optional)')
+    rules = StringField("Rules and Regulations", widget=TextArea())
+    admin_wh = StringField("Discord Webhook for Admin notification")
+    players_wh = StringField("Discord Webhook for participants notification")
     submit = SubmitField('Create Tournament', validators=[DataRequired()])
 
 

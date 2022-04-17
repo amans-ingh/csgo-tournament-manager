@@ -1,13 +1,58 @@
-import schedule
-import time
+import json
+import os
+
+from cargo import scheduler
+from cargo.discordapi import participant_map_veto
+from cargo.models import Tournament
 
 
-def send_discord_message(match):
-    print("Discord message: " + str(match))
+def cron_params(date, time):
+    date = date.split("-")
+    time = time.split(":")
+    year = date[0]
+    month = date[1]
+    day = date[2]
+    hour = time[0]
+    minute = time[1]
+    return year, month, day, hour, minute
 
 
-schedule.every().day.at("11:39:30").do(send_discord_message, match="Hey")
+def schedule_match_events(tour_id, round_num, match_num):
+    if os.path.exists('cargo/data/' + str(tour_id) + '.json'):
+        config = json.load(open('cargo/data/' + str(tour_id) + '.json'))
+    else:
+        return False
+    if config:
+        matches = config["matches"]
+    else:
+        return False
+    if matches:
+        roundData = matches[str(round_num)]
+    else:
+        return False
+    if roundData:
+        match = roundData[str(match_num)]
+    else:
+        return False
+    year, month, day, hour, minute = cron_params(match["date"], match["time"])
+    tour = Tournament.query.get(tour_id)
+    r_n = round_num.split("round")
+    r_n = int(r_n[1])
+    matchid = 2048*(int(tour.id)+1) + 256*(r_n + 1) + (int(match_num)+1)
+    if tour:
+        scheduler.add_job(trigger='cron', func=lambda: participant_map_veto(tour, round_num, match_num),
+                          id=str(matchid)+'pr',
+                          year=year, month=month, day=day,
+                          hour=hour, minute=minute)
 
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+
+def unschedule_match_events(tour_id, round_num, match_num):
+    tour = Tournament.query.get(tour_id)
+    r_n = round_num.split("round")
+    r_n = int(r_n[1])
+    matchid = 2048*(int(tour.id)+1) + 256*(r_n + 1) + (int(match_num)+1)
+    if tour:
+        try:
+            scheduler.remove_job(id=str(matchid)+'pr')
+        except:
+            pass

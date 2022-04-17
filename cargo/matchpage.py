@@ -17,10 +17,6 @@ from secrets import token_hex
 import datetime
 
 
-
-
-
-
 @application.route('/matchpage/<int:matchid>/se')
 @login_required
 def matchpage(matchid):
@@ -35,7 +31,13 @@ def matchpage(matchid):
         if matches:
             round = matches["round" + str(round_num)]
             if round:
-                match = round[str(match_num)]
+                try:
+                    match = round[str(match_num)]
+                    veto = match["veto"]
+                    if not veto:
+                        return render_template('error.html', user=current_user, title='Page Not Found')
+                except:
+                    return render_template('error.html', user=current_user, title='Page Not Found')
             else:
                 return render_template('error.html', user=current_user, title='Page Not Found')
         else:
@@ -60,24 +62,25 @@ def matchpage(matchid):
         protocol = 'ws'
         server_url = server_url.replace("http://", '')
     my_team = Team.query.filter_by(user=current_user.id).first()
-    if my_team.id == team1_id:
-        auth_token = token_hex(20)
-        team1["auth_token"] = auth_token
-        config = json.dumps(config, indent=4)
-        with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
-            f.write(config)
-        return render_template('veto.html', user=current_user, title='Match Veto Page', team1=team1, team2=team2,
-                               auth_token=auth_token, my_team_num=1, matchid=matchid, protocol=protocol,
-                               server_url=server_url)
-    if my_team.id == team2_id:
-        auth_token = token_hex(20)
-        team2["auth_token"] = auth_token
-        config = json.dumps(config, indent=4)
-        with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
-            f.write(config)
-        return render_template('veto.html', user=current_user, title='Match Veto Page', team1=team1, team2=team2,
-                               auth_token=auth_token, my_team_num=2, matchid=matchid, protocol=protocol,
-                               server_url=server_url)
+    if my_team:
+        if my_team.id == team1_id:
+            auth_token = token_hex(20)
+            team1["auth_token"] = auth_token
+            config = json.dumps(config, indent=4)
+            with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
+                f.write(config)
+            return render_template('veto.html', user=current_user, title='Match Veto Page', team1=team1, team2=team2,
+                                   auth_token=auth_token, my_team_num=1, matchid=matchid, protocol=protocol,
+                                   server_url=server_url)
+        if my_team.id == team2_id:
+            auth_token = token_hex(20)
+            team2["auth_token"] = auth_token
+            config = json.dumps(config, indent=4)
+            with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
+                f.write(config)
+            return render_template('veto.html', user=current_user, title='Match Veto Page', team1=team1, team2=team2,
+                                   auth_token=auth_token, my_team_num=2, matchid=matchid, protocol=protocol,
+                                   server_url=server_url)
     return render_template('unauth.html', user=current_user, title='Unathorised')
 
 

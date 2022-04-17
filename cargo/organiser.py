@@ -11,6 +11,8 @@ from cargo.functions import bracket_type, save_tournament, add_team_tournament, 
 from cargo.brackets import TournamentBrackets
 import datetime
 
+from cargo.sheduling import schedule_match_events, unschedule_match_events
+
 
 @application.route('/organise')
 @login_required
@@ -37,6 +39,10 @@ def create_tournament():
                                     reg_end=str(form.reg_end.data),
                                     tour_start=str(form.tour_start.data),
                                     tour_end=str(form.tour_end.data),
+                                    reg_start_time=form.reg_start_time.data,
+                                    reg_end_time=form.reg_end_time.data,
+                                    admin_wh=form.admin_wh.data,
+                                    players_wh=form.players_wh.data,
                                     admin=current_user.id)
             if form.paid.data:
                 tournament.paid = True
@@ -105,9 +111,11 @@ def tournament_settings(id):
                 reg_start = str(tour.reg_start).split("-")
                 reg_start_data = datetime.datetime(int(reg_start[0]), int(reg_start[1]), int(reg_start[2]))
                 form.reg_start.data = reg_start_data
+                form.reg_start_time.data = tour.reg_start_time
                 reg_end = str(tour.reg_end).split("-")
                 reg_end_data = datetime.datetime(int(reg_end[0]), int(reg_end[1]), int(reg_end[2]))
                 form.reg_end.data = reg_end_data
+                form.reg_end_time.data = tour.reg_end_time
                 tour_start = str(tour.tour_start).split("-")
                 tour_start_data = datetime.datetime(int(tour_start[0]), int(tour_start[1]), int(tour_start[2]))
                 form.tour_start.data = tour_start_data
@@ -127,6 +135,11 @@ def tournament_settings(id):
                 tour.tour_start = str(form.tour_start.data)
                 tour.tour_end = str(form.tour_end.data)
                 tour.paid = form.paid.data
+                tour.reg_start_time = form.reg_start_time.data
+                tour.reg_end_time = form.reg_end_time.data
+                tour.admin_wh = form.admin_wh.data
+                tour.rules = form.rules.data
+                tour.players_wh = form.players_wh.data
                 tour.payment_info = form.payment_info.data
                 db.session.commit()
                 save = Tournament.query.get(id)
@@ -340,6 +353,8 @@ def schedule_match(tour_id, round_num, match_num):
                     config = json.dumps(config, indent=4)
                     with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
                         f.write(config)
+                    unschedule_match_events(tour_id, round_num, match_num)
+                    schedule_match_events(tour_id, round_num, match_num)
                 return redirect(url_for('tournament', id=tour.id))
             return render_template('schedule_match.html', user=current_user, tour=tour, form=form)
         return render_template('unauth.html', user=current_user, title='Unathorised')

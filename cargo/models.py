@@ -29,7 +29,9 @@ class Tournament(db.Model):
     participants = db.Column(db.Integer, default=0)
     prize = db.Column(db.String)
     reg_start = db.Column(db.String)
+    reg_start_time = db.Column(db.String)
     reg_end = db.Column(db.String)
+    reg_end_time = db.Column(db.String)
     tour_start = db.Column(db.String)
     tour_end = db.Column(db.String)
     type = db.Column(db.String)
@@ -184,3 +186,13 @@ class PlayerStats(db.Model):
             db.session.add(rv)
 
         return rv
+
+
+class UpcomingTasks(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    task_type = db.Column(db.Integer)  # 1 - Schedule Match, 2 -
+    date = db.Column(db.String)
+    time = db.Column(db.String)
+    tour_id = db.Column(db.Integer)
+    round_numer = db.Column(db.Integer)
+    match_number = db.Column(db.Integer)

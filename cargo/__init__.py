@@ -4,12 +4,14 @@ from flask_bcrypt import Bcrypt
 from flask_restful import Api
 from flask_login import LoginManager
 from flask_sock import Sock
+from flask_apscheduler import APScheduler
 import os
 
 application = Flask(__name__)
 application.config.from_pyfile('config.py')
 sock = Sock(application)
-
+scheduler = APScheduler()
+scheduler.start()
 db = SQLAlchemy(application)
 bcrypt = Bcrypt(application)
 api_match_start = Api(application)

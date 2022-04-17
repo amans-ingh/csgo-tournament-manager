@@ -133,10 +133,6 @@
                         <td>Email</td>
                         <td>{{ organiser.email }}</td>
                     </tr>
-                    <tr>
-                        <td>Telegram</td>
-                        <td>8959740385</td>
-                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -209,9 +205,9 @@
                             {% endif %}
                           </td>
                         <td>
-                            {% if matchid %}
-                            <a class="btn btn-warning btn-sm" href="/matchpage/{matchid}/{{tour_type}}">Veto Page</a>
-                          <a class="btn btn-success btn-sm" href="/matchdetails/{matchid}/{{tour_type}}">Match Page</a>
+                            {% if matches[round][e_match]["veto"] %}
+                            <a class="btn btn-warning btn-sm" href='/matchpage/{{ matches[round][e_match]["matchid"] }}/{{tour_type}}'>Veto Page</a>
+                          <a class="btn btn-success btn-sm" href='/matchdetails/{{ matches[round][e_match]["matchid"] }}/{{tour_type}}'>Match Page</a>
                             {% else %}
                             <button class="btn btn-warning btn-sm" disabled>Veto Page</button>
                             <button class="btn btn-success btn-sm" disabled>Match Page</button>
