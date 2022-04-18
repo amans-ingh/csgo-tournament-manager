@@ -2,7 +2,6 @@ from cargo import application, db
 from cargo.models import Match, MapStats, PlayerStats, Servers
 
 from flask import request
-import datetime
 
 
 def as_int(val, on_fail=0):
@@ -18,8 +17,8 @@ def match_api_check(request, match):
     if match.api_key != request.values.get('key'):
         return None
 
-    if match.finalized():
-        return None
+    # if match.finalized():
+    #     return None
     return True
 
 
@@ -64,9 +63,6 @@ def match_map_start(matchid, mapnumber):
     if not match_api_check(request, match):
         return "Wrong API Key", 404
 
-    if match.start_time is None:
-        match.start_time = datetime.datetime.utcnow()
-
     map_name = request.values.get('mapname')
 
     # Create mapstats object if needed
@@ -84,7 +80,7 @@ def match_map_update(matchid, mapnumber):
     if not match_api_check(request, match):
         return "Wrong API Key", 404
 
-    map_stats = match.map_stats.filter_by(map_number=mapnumber).first()
+    map_stats = MapStats.query.filter_by(match_id=matchid, map_number=mapnumber).first()
     if map_stats:
         t1 = as_int(request.values.get('team1score'))
         t2 = as_int(request.values.get('team2score'))
@@ -106,7 +102,7 @@ def match_map_finish(matchid, mapnumber):
     if not match_api_check(request, match):
         return "Wrong API Key", 404
 
-    map_stats = match.map_stats.filter_by(map_number=mapnumber).first()
+    map_stats = MapStats.query.filter_by(match_id=matchid, map_number=mapnumber).first()
     if map_stats:
 
         winner = request.values.get('winner')
@@ -137,7 +133,7 @@ def match_map_update_player(matchid, mapnumber, steamid64):
     if match.api_key != api_key:
         return 'Wrong API key', 400
 
-    map_stats = match.map_stats.filter_by(map_number=mapnumber).first()
+    map_stats = MapStats.query.filter_by(match_id=matchid, map_number=mapnumber).first()
     if map_stats:
         player_stats = PlayerStats.get_or_create(matchid, mapnumber, steamid64)
         if player_stats:

@@ -59,7 +59,7 @@ class MyApiMatchStart(Resource):
                 match = Match.query.filter_by(tour=tour_id, round_num=round_num, match_num=match_num).first()
                 if match:
                     team_a, team_b, match_id = config_generator.find_teams()
-                    config = {'matchid': match_id,
+                    config = {'matchid': str(match_id),
                               'num_maps': len(config_generator.find_maps()),
                               'skip_veto': True,
                               'side_type': 'always_knife',

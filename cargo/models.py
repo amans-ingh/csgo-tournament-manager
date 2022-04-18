@@ -120,7 +120,7 @@ class MapStats(db.Model):
 
     @staticmethod
     def get_or_create(match_id, map_number, map_name=''):
-        match = Match.query.get(match_id)
+        match = Match.query.filter_by(matchid=match_id).first()
         if match is None or map_number >= match.max_maps:
             return None
 
@@ -176,7 +176,7 @@ class PlayerStats(db.Model):
         if len(mapstats.player_stats.all()) >= 40:  # Cap on players per map
             return None
 
-        rv = mapstats.player_stats.filter_by(steam_id=steam_id).first()
+        rv = MapStats.query.filter_by(match_id=matchid, steam_id=steam_id).first()
 
         if rv is None:
             rv = PlayerStats()
