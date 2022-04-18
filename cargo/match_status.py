@@ -1,5 +1,7 @@
 from cargo import application, db
-from cargo.models import Match, MapStats, PlayerStats, Servers
+from cargo.brackets import TournamentBrackets
+from cargo.functions import details_from_match_id
+from cargo.models import Match, MapStats, PlayerStats, Servers, Tournament
 
 from flask import request
 
@@ -25,6 +27,9 @@ def match_api_check(request, match):
 @application.route('/match/<int:matchid>/finish', methods=['POST'])
 def match_finish(matchid):
     match = Match.query.filter_by(matchid=matchid).first()
+    tour = Tournament.query.get(match.tour)
+    tb = TournamentBrackets(tour)
+    tour_id, round_num, match_num = details_from_match_id(matchid)
     if not match:
         return "Invalid matchid", 404
     if not match_api_check(request, match):
@@ -33,8 +38,12 @@ def match_finish(matchid):
     winner = request.values.get('winner')
     if winner == 'team1':
         match.winner = match.team1_id
+        tb.single_elimination(round_num, {"match": match_num, "winnerId": match.winner})
+        tb.single_elimination(round_num+1)
     elif winner == 'team2':
         match.winner = match.team2_id
+        tb.single_elimination(round_num, {"match": match_num, "winnerId": match.winner})
+        tb.single_elimination(round_num+1)
     else:
         match.winner = None
 

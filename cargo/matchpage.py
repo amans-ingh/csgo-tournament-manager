@@ -114,7 +114,9 @@ def matchpage_sock(ws):
                                                         matchid=matchid,
                                                         api_key=api_key,
                                                         server_id=server.id,
-                                                        ip=server.ip)
+                                                        ip=server.ip,
+                                                        team1_id=match["team1"]["id"],
+                                                        team2_id=match["taem2"]["id"])
                                         db.session.add(matchdb)
                                         db.session.commit()
     except:

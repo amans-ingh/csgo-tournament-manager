@@ -67,8 +67,8 @@ class Match(db.Model):
     winner = db.Column(db.Integer, db.ForeignKey('team.id'))
     forfeit = db.Column(db.Boolean, default=False)
     server_id = db.Column(db.Integer, db.ForeignKey('servers.id'))
-    team1_score = db.Column(db.Integer)
-    team2_score = db.Column(db.Integer)
+    team1_score = db.Column(db.Integer, default=0)
+    team2_score = db.Column(db.Integer, default=0)
     api_key = db.Column(db.String)
     matchid = db.Column(db.Integer)
 
