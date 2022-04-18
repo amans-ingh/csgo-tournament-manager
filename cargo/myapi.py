@@ -69,7 +69,7 @@ class MyApiMatchStart(Resource):
                               'min_spectators_to_ready': 0,
                               'team1': team_a,
                               'team2': team_b,
-                              'cvars': {'get5_web_api_key': application.config['SERVER_URL'],
+                              'cvars': {'get5_web_api_key': match.api_key,
                                         'hostname': str(tour.name) + ' - Round ' + str(round_num) + ' Match ' +
                                                     str(match_num) +
                                                     ' is live',
@@ -78,7 +78,7 @@ class MyApiMatchStart(Resource):
                                         'get5_allow_technical_pause': 1,
                                         'get5_end_match_on_empty_server': 0,
                                         'get5_kick_when_no_match_loaded': 1,
-                                        'get5_web_api_url': match.api_key
+                                        'get5_web_api_url': application.config['SERVER_URL']
                                         }
                               }
                     return config
