@@ -118,6 +118,30 @@ class CreateTournament(FlaskForm):
     players_wh = StringField("Discord Webhook for participants notification")
     submit = SubmitField('Create Tournament', validators=[DataRequired()])
 
+    def validate_reg_start_time(self, time):
+        if ":" not in str(time.data):
+            raise ValidationError("Incorrect time format")
+        t = str(time.data).replace(' ', '').split(':')
+        try:
+            hh = int(t[0])
+            mm = int(t[1])
+        except:
+            raise ValidationError("Incorrect time format")
+        if not (0<=hh<24 and 0<=mm<=59):
+            raise ValidationError("Incorrect time entered")
+
+    def validate_reg_end_time(self, time):
+        if ":" not in str(time.data):
+            raise ValidationError("Incorrect time format")
+        t = str(time.data).replace(' ', '').split(':')
+        try:
+            hh = int(t[0])
+            mm = int(t[1])
+        except:
+            raise ValidationError("Incorrect time format")
+        if not (0<=hh<24 and 0<=mm<=59):
+            raise ValidationError("Incorrect time entered")
+
 
 class AddServerForm(FlaskForm):
     name = StringField('Server Name', validators=[Length(min=2, max=50)])

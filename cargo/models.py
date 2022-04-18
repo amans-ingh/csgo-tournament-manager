@@ -70,6 +70,7 @@ class Match(db.Model):
     team1_score = db.Column(db.Integer)
     team2_score = db.Column(db.Integer)
     api_key = db.Column(db.String)
+    matchid = db.Column(db.Integer)
 
 
 class Servers(db.Model):

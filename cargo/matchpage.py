@@ -4,11 +4,9 @@ import time
 
 from flask import render_template, url_for, flash, redirect, request
 from cargo import application, bcrypt, db, sock
-from cargo.models import User, Team, Tournament, Registration, Servers
+from cargo.models import User, Team, Tournament, Registration, Servers, Match
 from cargo.rcon import GameServer
 from cargo.steamapi import SteamAPI
-from cargo.forms import RegistrationForm, LoginForm, RegisterTeamForm, ChangePassword, CreateTournament, AddServerForm, \
-    ScheduleMatch
 from flask_login import login_user, current_user, logout_user, login_required
 from cargo.functions import bracket_type, save_tournament, add_team_tournament, delete_team_tournament, load_players, \
     details_from_match_id, veto_status
@@ -106,9 +104,19 @@ def matchpage_sock(ws):
                                 if veto_data["completed"]:
                                     server = Servers.query.filter_by(ip=veto_data["serverstatus"]["ip"], port=veto_data["serverstatus"]["port"]).first()
                                     if server:
+                                        api_key = token_hex(20)
                                         server.busy = True
                                         gs = GameServer(server.ip, server.port, server.password)
                                         gs.load_match(tour_id, round_num, match_num)
+                                        matchdb = Match(tour=tour_id,
+                                                        round_num=round_num,
+                                                        match_num=match_num,
+                                                        matchid=matchid,
+                                                        api_key=api_key,
+                                                        server_id=server.id,
+                                                        ip=server.ip)
+                                        db.session.add(matchdb)
+                                        db.session.commit()
     except:
         pass
 

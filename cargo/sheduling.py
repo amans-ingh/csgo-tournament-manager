@@ -2,7 +2,7 @@ import json
 import os
 
 from cargo import scheduler
-from cargo.discordapi import participant_map_veto
+from cargo.functions import participant_map_veto
 from cargo.models import Tournament
 
 
@@ -41,7 +41,7 @@ def schedule_match_events(tour_id, round_num, match_num):
     matchid = 2048*(int(tour.id)+1) + 256*(r_n + 1) + (int(match_num)+1)
     if tour:
         scheduler.add_job(trigger='cron', func=lambda: participant_map_veto(tour, round_num, match_num),
-                          id=str(matchid)+'pr',
+                          id=str(matchid)+'ma',
                           year=year, month=month, day=day,
                           hour=hour, minute=minute)
 
@@ -53,6 +53,6 @@ def unschedule_match_events(tour_id, round_num, match_num):
     matchid = 2048*(int(tour.id)+1) + 256*(r_n + 1) + (int(match_num)+1)
     if tour:
         try:
-            scheduler.remove_job(id=str(matchid)+'pr')
+            scheduler.remove_job(id=str(matchid)+'ma')
         except:
             pass

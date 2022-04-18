@@ -25,7 +25,9 @@ def match_api_check(request, match):
 
 @application.route('/match/<int:matchid>/finish', methods=['POST'])
 def match_finish(matchid):
-    match = Match.query.get_or_404(matchid)
+    match = Match.query.filter_by(matchid=matchid).first()
+    if not match:
+        return "Invalid matchid", 404
     if not match_api_check(request, match):
         return "Wrong API Key", 404
 
@@ -56,7 +58,9 @@ def match_finish(matchid):
 
 @application.route('/match/<int:matchid>/map/<int:mapnumber>/start', methods=['POST'])
 def match_map_start(matchid, mapnumber):
-    match = Match.query.get(matchid)
+    match = Match.query.filter_by(matchid=matchid).first()
+    if not match:
+        return "Invalid matchid", 404
     if not match_api_check(request, match):
         return "Wrong API Key", 404
 
@@ -74,7 +78,9 @@ def match_map_start(matchid, mapnumber):
 
 @application.route('/match/<int:matchid>/map/<int:mapnumber>/update', methods=['POST'])
 def match_map_update(matchid, mapnumber):
-    match = Match.query.get(matchid)
+    match = Match.query.filter_by(matchid=matchid).first()
+    if not match:
+        return "Invalid matchid", 404
     if not match_api_check(request, match):
         return "Wrong API Key", 404
 
@@ -94,7 +100,9 @@ def match_map_update(matchid, mapnumber):
 
 @application.route('/match/<int:matchid>/map/<int:mapnumber>/finish', methods=['POST'])
 def match_map_finish(matchid, mapnumber):
-    match = Match.query.get(matchid)
+    match = Match.query.filter_by(matchid=matchid).first()
+    if not match:
+        return "Invalid matchid", 404
     if not match_api_check(request, match):
         return "Wrong API Key", 404
 
@@ -122,7 +130,9 @@ def match_map_finish(matchid, mapnumber):
     '/match/<int:matchid>/map/<int:mapnumber>/player/<steamid64>/update',
     methods=['POST'])
 def match_map_update_player(matchid, mapnumber, steamid64):
-    match = Match.query.get_or_404(matchid)
+    match = Match.query.filter_by(matchid=matchid).first()
+    if not match:
+        return "Invalid matchid", 404
     api_key = request.values.get('key')
     if match.api_key != api_key:
         return 'Wrong API key', 400

@@ -283,6 +283,10 @@ def add_server(id):
                                 server.busy = False
                                 for ser in other_servers:
                                     ser.busy = False
+                            else:
+                                server.busy = True
+                                for ser in other_servers:
+                                    ser.busy = True
                         else:
                             server.busy = True
                             for ser in other_servers:
@@ -319,6 +323,7 @@ def tour_servers(id):
                 else:
                     server.status = 'Offline'
                 servers.append(server)
+                db.session.commit()
             return render_template('servers.html', user=current_user, servers=servers, tour=tour)
         return render_template('unauth.html', user=current_user, title='Unathorised')
     return render_template('error.html', user=current_user, title='Page Not Found')

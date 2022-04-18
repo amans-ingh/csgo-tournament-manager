@@ -1,7 +1,11 @@
 import json
 import os
 
-from cargo.models import Servers
+from cargo import db
+from cargo.brackets import TournamentBrackets
+from cargo.discordapi import participants_join_veto, admin_server_unavailable
+from cargo.models import Servers, Tournament
+from cargo.rcon import GameServer
 
 
 class MyClass:
@@ -245,9 +249,6 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True):
                                                     count += 1
                                             if count == 1:
                                                 veto_data["completed"] = True
-                                                server = Servers.query.filter_by(location=tour_id, busy=False).first()
-                                                veto_data["serverstatus"]["ip"] = server.ip
-                                                veto_data["serverstatus"]["port"] = server.port
                                             veto_data["voting"] = (int(veto_data["voting"])<<1) % 3
                                             con = json.dumps(config, indent=4)
                                             with open('cargo/data/' + str(tour_id) + '.json', 'w+') as f:
@@ -265,12 +266,105 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True):
                                                     count += 1
                                             if count == 1:
                                                 veto_data["completed"] = True
-                                                server = Servers.query.filter_by(location=tour_id, busy=False).first()
-                                                veto_data["serverstatus"]["ip"] = server.ip
-                                                veto_data["serverstatus"]["port"] = server.port
                                             veto_data["voting"] = (int(veto_data["voting"])<<1) % 3
                                             con = json.dumps(config, indent=4)
                                             with open('cargo/data/' + str(tour_id) + '.json', 'w+') as f:
                                                 f.write(con)
                                         return veto_data
     return True
+
+
+def participant_map_veto(tour, round_num, match_num):
+    data_def = {
+        "mapstatus": {
+            "mirage": True,
+            "inferno": True,
+            "overpass": True,
+            "dust2": True,
+            "vertigo": True,
+            "train": True,
+            "nuke": True
+        },
+        "serverstatus": {
+            "ip": None,
+            "port": None
+        },
+        "voting": 1,
+        "action": "Ban",
+        "bo": 1,
+        "team1_online": False,
+        "team2_online": False,
+        "completed": False
+    }
+    if os.path.exists('cargo/data/' + str(tour.id) + '.json'):
+        config = json.load(open('cargo/data/' + str(tour.id) + '.json'))
+    else:
+        return False
+    if config:
+        matches = config["matches"]
+    else:
+        return False
+    if matches:
+        roundData = matches[str(round_num)]
+    else:
+        return False
+    if roundData:
+        match = roundData[str(match_num)]
+    else:
+        return False
+    if match:
+        team1 = match["team1"]
+        team2 = match["team2"]
+    else:
+        return False
+    r_n = round_num.split("round")
+    matchid = 2048 * (int(tour.id) + 1) + 256 * (int(r_n[1]) + 1) + (match_num + 1)
+    check_all_servers(tour.id)
+    server = Servers.query.filter_by(location=tour.id, busy=False).first()
+    if not server:
+        match["veto"] = False
+        match["matchid"] = matchid
+        config = json.dumps(config, indent=4)
+        with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
+            f.write(config)
+        admin_server_unavailable(tour, round_num, match_num)
+        db.session.commit()
+        return False
+    tb = TournamentBrackets(tour)
+    if team1 and not team2:
+        tb.single_elimination(round=round_num, result=team1["id"])
+    if team2 and not team1:
+        tb.single_elimination(round=round_num, result=team2["id"])
+    if not team1 and not team2:
+        pass
+    if team1 and team2:
+        if tour.players_wh:
+            participants_join_veto(tour, team1, team2, matchid)
+            tourna = Tournament.query.get(tour.id)
+            tourna.third=True
+            match["veto"] = True
+            match["matchid"] = matchid
+            match["vetostatus"] = data_def
+            match["vetostatus"]["serverstatus"]["ip"] = server.ip
+            match["vetostatus"]["serverstatus"]["port"] = server.port
+            server.busy = True
+            db.session.commit()
+    config = json.dumps(config, indent=4)
+    with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
+        f.write(config)
+    db.session.commit()
+
+
+def check_all_servers(tour_id):
+    servers = Servers.query.filter_by(location=tour_id).all()
+    for server in servers:
+        gs = GameServer(server.ip, server.port, server.password)
+        server_status = gs.server_status()
+        if server_status:
+            if server_status["gamestate"] == 0:
+                server.busy = False
+            else:
+                server.busy = True
+        else:
+            server.busy = True
+    db.session.commit()
