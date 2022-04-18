@@ -174,7 +174,7 @@ class PlayerStats(db.Model):
     def get_or_create(matchid, mapnumber, steam_id):
         mapstats = MapStats.get_or_create(matchid, mapnumber)
 
-        rv = MapStats.query.filter_by(match_id=matchid, steam_id=steam_id).first()
+        rv = PlayerStats.query.filter_by(match_id=matchid, steam_id=steam_id, map_id=mapstats.id).first()
 
         if rv is None:
             rv = PlayerStats()
