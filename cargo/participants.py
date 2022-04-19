@@ -4,7 +4,7 @@ import os
 from flask import render_template, url_for, redirect
 from cargo import application, db
 from cargo.models import User, Team, Tournament, Registration
-from flask_login import login_user, current_user, logout_user, login_required
+from flask_login import current_user, login_required
 from cargo.functions import bracket_type, delete_team_tournament, load_players
 from cargo.brackets import TournamentBrackets
 

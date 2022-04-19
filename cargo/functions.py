@@ -194,7 +194,7 @@ def details_from_match_id(match_id):
     return tour_id, round_num, match_num
 
 
-def veto_status(tour_id, round_num, match_num, data=False, get=True):
+def veto_status(tour_id, round_num, match_num, data=False, get=True, reset=False, bo=1):
     data_def = {
         "mapstatus": {
             "mirage": True,
@@ -211,7 +211,7 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True):
         },
         "voting": 1,
         "action": "Ban",
-        "bo": 1,
+        "bo": bo,
         "team1_online": False,
         "team2_online": False,
         "completed": False
@@ -225,7 +225,14 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True):
                 if round:
                     match = round[str(match_num)]
                     if match:
-                        if get:
+                        if reset:
+                            match["veto"] = False
+                            match["vetostatus"] = data_def
+                            con = json.dumps(config, indent=4)
+                            with open('cargo/data/' + str(tour_id) + '.json', 'w+') as f:
+                                f.write(con)
+                            return data_def
+                        elif get:
                             try:
                                 veto_data = match["vetostatus"]
                                 return veto_data
@@ -242,12 +249,26 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True):
                                         banned_map = data["map"]
                                         veto_data = match["vetostatus"]
                                         if str(data["team"]) == str(veto_data["voting"]):
-                                            veto_data["mapstatus"][banned_map] = False
+                                            if veto_data["action"] == "Ban":
+                                                veto_data["mapstatus"][banned_map] = False
+                                            else:
+                                                veto_data["mapstatus"][banned_map] = True
                                             count = 0
                                             for maps in veto_data["mapstatus"]:
                                                 if veto_data["mapstatus"][maps] == True:
                                                     count += 1
-                                            if count == 1:
+                                            if int(veto_data["bo"]) == 1:
+                                                veto_data["action"] = "Ban"
+                                            if int(veto_data["bo"]) == 3:
+                                                if count == 7 or count == 6:
+                                                    veto_data["action"] = "Ban"
+                                                elif count == 5 or count == 4:
+                                                    veto_data["action"] = "Pick"
+                                                else:
+                                                    veto_data["action"] = "Ban"
+                                            if int(veto_data["bo"]) == 5:
+                                                veto_data["action"] = "Ban"
+                                            if count == int(veto_data["bo"]):
                                                 veto_data["completed"] = True
                                             veto_data["voting"] = (int(veto_data["voting"])<<1) % 3
                                             con = json.dumps(config, indent=4)
@@ -259,12 +280,26 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True):
                                         banned_map = data["map"]
                                         veto_data = data_def
                                         if data["team"] == veto_data["voting"]:
-                                            veto_data["mapstatus"][banned_map] = False
+                                            if veto_data["action"] == "Ban":
+                                                veto_data["mapstatus"][banned_map] = False
+                                            else:
+                                                veto_data["mapstatus"][banned_map] = True
                                             count = 0
                                             for maps in veto_data["mapstatus"]:
                                                 if veto_data["mapstatus"][maps] == True:
                                                     count += 1
-                                            if count == 1:
+                                            if int(veto_data["bo"]) == 1:
+                                                veto_data["action"] = "Ban"
+                                            if int(veto_data["bo"]) == 3:
+                                                if count == 7 or count == 6:
+                                                    veto_data["action"] = "Ban"
+                                                elif count == 5 or count == 4:
+                                                    veto_data["action"] = "Pick"
+                                                else:
+                                                    veto_data["action"] = "Ban"
+                                            if int(veto_data["bo"]) == 5:
+                                                veto_data["action"] = "Ban"
+                                            if count == int(veto_data["bo"]):
                                                 veto_data["completed"] = True
                                             veto_data["voting"] = (int(veto_data["voting"])<<1) % 3
                                             con = json.dumps(config, indent=4)
@@ -317,8 +352,8 @@ def participant_map_veto(tour, round_num, match_num):
         team2 = match["team2"]
     else:
         return False
-    r_n = round_num.split("round")
-    matchid = 2048 * (int(tour.id) + 1) + 256 * (int(r_n[1]) + 1) + (match_num + 1)
+    r_n = int(round_num.split("round")[1])
+    matchid = 2048 * (int(tour.id) + 1) + 256 * (r_n + 1) + (match_num + 1)
     check_all_servers(tour.id)
     server = Servers.query.filter_by(location=tour.id, busy=False).first()
     if not server:
@@ -332,9 +367,9 @@ def participant_map_veto(tour, round_num, match_num):
         return False
     tb = TournamentBrackets(tour)
     if team1 and not team2:
-        tb.single_elimination(round=round_num, result=team1["id"])
+        tb.single_elimination(round=r_n, result=team1["id"])
     if team2 and not team1:
-        tb.single_elimination(round=round_num, result=team2["id"])
+        tb.single_elimination(round=r_n, result=team2["id"])
     if not team1 and not team2:
         pass
     if team1 and team2:

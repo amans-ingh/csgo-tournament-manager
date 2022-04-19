@@ -1,7 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request
-from cargo import application, bcrypt, db, sock
+from cargo import application, bcrypt, db
 from cargo.models import User, Team
-from cargo.steamapi import SteamAPI
 from cargo.forms import RegistrationForm, LoginForm, RegisterTeamForm, ChangePassword
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -61,37 +60,43 @@ def team():
     form = RegisterTeamForm()
     my_team = Team.query.filter_by(id=current_user.id).first()
     if form.validate_on_submit():
-        steam_api = SteamAPI()
-        p1_steam = steam_api.steam_id_profile(form.player1_steam.data)
-        p2_steam = steam_api.steam_id_profile(form.player2_steam.data)
-        p3_steam = steam_api.steam_id_profile(form.player3_steam.data)
-        p4_steam = steam_api.steam_id_profile(form.player4_steam.data)
-        p5_steam = steam_api.steam_id_profile(form.player5_steam.data)
         if my_team:
             my_team.name = form.name.data
             my_team.p1 = form.player1.data
-            my_team.p1_steam_id = p1_steam
+            my_team.p1_steam_id = form.player1_steam.data
             my_team.p2 = form.player2.data
-            my_team.p2_steam_id = p2_steam
+            my_team.p2_steam_id = form.player2_steam.data
             my_team.p3 = form.player3.data
-            my_team.p3_steam_id = p3_steam
+            my_team.p3_steam_id = form.player3_steam.data
             my_team.p4 = form.player4.data
-            my_team.p4_steam_id = p4_steam
+            my_team.p4_steam_id = form.player4_steam.data
             my_team.p5 = form.player5.data
-            my_team.p5_steam_id = p5_steam
+            my_team.p5_steam_id = form.player5_steam.data
+            my_team.p6 = form.player6.data
+            my_team.p6_steam_id = form.player6_steam.data
+            my_team.p7 = form.player7.data
+            my_team.p7_steam_id = form.player7_steam.data
+            my_team.p8 = form.player8.data
+            my_team.p8_steam_id = form.player8_steam.data
         else:
             my_team = Team(user=current_user.id,
                            name=form.name.data,
                            p1=form.player1.data,
-                           p1_steam_id=p1_steam,
+                           p1_steam_id=form.player1_steam.data,
                            p2=form.player2.data,
-                           p2_steam_id=p2_steam,
+                           p2_steam_id=form.player2_steam.data,
                            p3=form.player3.data,
-                           p3_steam_id=p3_steam,
+                           p3_steam_id=form.player3_steam.data,
                            p4=form.player4.data,
-                           p4_steam_id=p4_steam,
+                           p4_steam_id=form.player4_steam.data,
                            p5=form.player5.data,
-                           p5_steam_id=p5_steam)
+                           p5_steam_id=form.player5_steam.data,
+                           p6=form.player6.data,
+                           p6_steam_id=form.player6_steam.data,
+                           p7=form.player7.data,
+                           p7_steam_id=form.player7_steam.data,
+                           p8=form.player8.data,
+                           p8_steam_id=form.player8_steam.data)
             db.session.add(my_team)
         db.session.commit()
         flash("Team Information Updated Successfully!", "success")

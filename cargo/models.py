@@ -16,8 +16,8 @@ def unauthorized_callback():
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    email = db.Column(db.String(30), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String, unique=True, nullable=False)
+    password = db.Column(db.String, nullable=False)
     tournament = db.relationship('Tournament', backref='player', lazy=True)
     team = db.relationship('Team', backref='captain', lazy=True)
 
@@ -43,6 +43,7 @@ class Tournament(db.Model):
     rules = db.Column(db.String)
     admin_wh = db.Column(db.String)
     players_wh = db.Column(db.String)
+    discord_invite = db.Column(db.String)
     admin = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 

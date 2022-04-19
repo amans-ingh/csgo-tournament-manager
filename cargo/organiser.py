@@ -7,7 +7,8 @@ from cargo.models import User, Team, Tournament, Registration, Servers
 from cargo.rcon import GameServer
 from cargo.forms import CreateTournament, AddServerForm, ScheduleMatch
 from flask_login import current_user, login_required
-from cargo.functions import bracket_type, save_tournament, add_team_tournament, delete_team_tournament, load_players
+from cargo.functions import bracket_type, save_tournament, add_team_tournament, delete_team_tournament, load_players, \
+    veto_status
 from cargo.brackets import TournamentBrackets
 import datetime
 
@@ -43,10 +44,9 @@ def create_tournament():
                                     reg_end_time=form.reg_end_time.data,
                                     admin_wh=form.admin_wh.data,
                                     players_wh=form.players_wh.data,
+                                    discord_invite=form.discord_invite.data,
+                                    rules=form.rules.data,
                                     admin=current_user.id)
-            if form.paid.data:
-                tournament.paid = True
-                tournament.payment_info = form.payment_info.data
             db.session.add(tournament)
             db.session.commit()
             save = Tournament.query.filter_by(admin=current_user.id).all()
@@ -122,8 +122,9 @@ def tournament_settings(id):
                 tour_end = str(tour.tour_end).split("-")
                 tour_end_data = datetime.datetime(int(tour_end[0]), int(tour_end[1]), int(tour_end[2]))
                 form.tour_end.data = tour_end_data
-                form.paid.data = tour.paid
-                form.payment_info.data = tour.payment_info
+                form.admin_wh.data = tour.admin_wh
+                form.players_wh = tour.players_wh
+                form.discord_invite = tour.discord_invite
             if form.validate_on_submit():
                 tour.name = form.name.data
                 tour.type = form.type.data
@@ -134,13 +135,12 @@ def tournament_settings(id):
                 tour.reg_end = str(form.reg_end.data)
                 tour.tour_start = str(form.tour_start.data)
                 tour.tour_end = str(form.tour_end.data)
-                tour.paid = form.paid.data
                 tour.reg_start_time = form.reg_start_time.data
                 tour.reg_end_time = form.reg_end_time.data
                 tour.admin_wh = form.admin_wh.data
                 tour.rules = form.rules.data
                 tour.players_wh = form.players_wh.data
-                tour.payment_info = form.payment_info.data
+                tour.discord_invite = form.discord_invite.data
                 db.session.commit()
                 save = Tournament.query.get(id)
                 save_tournament(save)
@@ -358,6 +358,7 @@ def schedule_match(tour_id, round_num, match_num):
                     config = json.dumps(config, indent=4)
                     with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
                         f.write(config)
+                    veto_status(tour_id, int(round_num.split("round")[1]), match_num, reset=True)
                     unschedule_match_events(tour_id, round_num, match_num)
                     schedule_match_events(tour_id, round_num, match_num)
                 return redirect(url_for('tournament', id=tour.id))

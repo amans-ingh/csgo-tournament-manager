@@ -2,17 +2,13 @@ import json
 import os
 import time
 
-from flask import render_template, url_for, flash, redirect, request
-from cargo import application, bcrypt, db, sock
-from cargo.models import User, Team, Tournament, Registration, Servers, Match
+from flask import render_template
+from cargo import application, db, sock
+from cargo.models import Team, Tournament, Servers, Match
 from cargo.rcon import GameServer
-from cargo.steamapi import SteamAPI
-from flask_login import login_user, current_user, logout_user, login_required
-from cargo.functions import bracket_type, save_tournament, add_team_tournament, delete_team_tournament, load_players, \
-    details_from_match_id, veto_status
-from cargo.brackets import TournamentBrackets
+from flask_login import current_user, login_required
+from cargo.functions import details_from_match_id, veto_status
 from secrets import token_hex
-import datetime
 
 
 @application.route('/matchpage/<int:matchid>/se')
@@ -100,6 +96,9 @@ def matchpage_sock(ws):
                         if round:
                             match = round[str(match_num)]
                             if match:
+                                veto = match["veto"]
+                                if not veto:
+                                    return
                                 veto_data = veto_status(tour_id, round_num, match_num, data=data_received, get=False)
                                 if veto_data["completed"]:
                                     server = Servers.query.filter_by(ip=veto_data["serverstatus"]["ip"], port=veto_data["serverstatus"]["port"]).first()
@@ -107,7 +106,6 @@ def matchpage_sock(ws):
                                         api_key = token_hex(20)
                                         server.busy = True
                                         gs = GameServer(server.ip, server.port, server.password)
-                                        gs.load_match(tour_id, round_num, match_num)
                                         matchdb = Match(tour=tour_id,
                                                         round_num=round_num,
                                                         match_num=match_num,
@@ -116,9 +114,10 @@ def matchpage_sock(ws):
                                                         server_id=server.id,
                                                         ip=server.ip,
                                                         team1_id=match["team1"]["id"],
-                                                        team2_id=match["taem2"]["id"])
+                                                        team2_id=match["team2"]["id"])
                                         db.session.add(matchdb)
                                         db.session.commit()
+                                        gs.load_match(tour_id, round_num, match_num)
     except:
         pass
 
@@ -128,6 +127,19 @@ def echo(ws, matchid):
     try:
         while True:
             tour_id, round_num, match_num = details_from_match_id(matchid)
+            tour = Tournament.query.get(tour_id)
+            if tour:
+                if os.path.exists('cargo/data/' + str(tour.id) + '.json'):
+                    config = json.load(open('cargo/data/' + str(tour.id) + '.json'))
+                    matches = config["matches"]
+                    if matches:
+                        round = matches["round" + str(round_num)]
+                        if round:
+                            match = round[str(match_num)]
+                            if match:
+                                veto = match["veto"]
+                                if not veto:
+                                    return
             data = veto_status(tour_id, round_num, match_num, data=False, get=True)
             ws.send(json.dumps(data))
             time.sleep(1)

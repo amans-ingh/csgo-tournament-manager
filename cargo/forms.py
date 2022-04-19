@@ -31,57 +31,143 @@ class LoginForm(FlaskForm):
 
 class RegisterTeamForm(FlaskForm):
     name = StringField('Team Name', validators=[Length(min=2, max=30)])
-    player1 = StringField('Player 1 Nickname', validators=[Length(min=2, max=20)])
-    player2 = StringField('Player 2 Nickname', validators=[Length(min=2, max=20)])
-    player3 = StringField('Player 3 Nickname', validators=[Length(min=2, max=20)])
-    player4 = StringField('Player 4 Nickname', validators=[Length(min=2, max=20)])
-    player5 = StringField('Player 5 Nickname', validators=[Length(min=2, max=20)])
-    player1_steam = StringField('Player 1 Steam Profile URL', validators=[DataRequired()])
-    player2_steam = StringField('Player 2 Steam Profile URL', validators=[DataRequired()])
-    player3_steam = StringField('Player 3 Steam Profile URL', validators=[DataRequired()])
-    player4_steam = StringField('Player 4 Steam Profile URL', validators=[DataRequired()])
-    player5_steam = StringField('Player 5 Steam Profile URL', validators=[DataRequired()])
+    player1 = StringField('Player 1 *', validators=[DataRequired()])
+    player2 = StringField('Player 2')
+    player3 = StringField('Player 3')
+    player4 = StringField('Player 4')
+    player5 = StringField('Player 5')
+    player6 = StringField('Coach (if any)')
+    player7 = StringField('Substitute 1 (if any)')
+    player8 = StringField('Substitute 2 (if any)')
+    player1_steam = StringField('Steam Profile URL *')
+    player2_steam = StringField('Steam Profile URL')
+    player3_steam = StringField('Steam Profile URL')
+    player4_steam = StringField('Steam Profile URL')
+    player5_steam = StringField('Steam Profile URL')
+    player6_steam = StringField('Steam Profile URL')
+    player7_steam = StringField('Steam Profile URL')
+    player8_steam = StringField('Steam Profile URL')
     submit = SubmitField('Update')
 
-    def validate_player1_steam(self, player1_steam):
-        steam_api = SteamAPI()
-        steam_id = steam_api.steam_id_profile(player1_steam.data)
-        if steam_id:
-            pass
+    def validate_player1_steam(self, hello):
+        if self.player1.data:
+            if self.player1_steam.data:
+                steam_api = SteamAPI()
+                steam_id = steam_api.steam_id_profile(self.player1_steam.data)
+                if steam_id:
+                    self.player1_steam.data = steam_id
+                    pass
+                else:
+                    raise ValidationError('Incorrect Steam profile URL')
+            else:
+                raise ValidationError('Please input Steam profile URL')
         else:
-            raise ValidationError('Incorrect steam profile URL')
+            pass
 
-    def validate_player2_steam(self, player2_steam):
-        steam_api = SteamAPI()
-        steam_id = steam_api.steam_id_profile(player2_steam.data)
-        if steam_id:
-            pass
+    def validate_player2_steam(self, hello):
+        if self.player2.data:
+            if self.player2_steam.data:
+                steam_api = SteamAPI()
+                steam_id = steam_api.steam_id_profile(self.player2_steam.data)
+                if steam_id:
+                    self.player2_steam.data = steam_id
+                    pass
+                else:
+                    raise ValidationError('Incorrect Steam profile URL')
+            else:
+                raise ValidationError('Please input Steam profile URL')
         else:
-            raise ValidationError('Incorrect steam profile URL')
+            pass
 
-    def validate_player3_steam(self, player3_steam):
-        steam_api = SteamAPI()
-        steam_id = steam_api.steam_id_profile(player3_steam.data)
-        if steam_id:
-            pass
+    def validate_player3_steam(self, hello):
+        if self.player3.data:
+            if self.player3_steam.data:
+                steam_api = SteamAPI()
+                steam_id = steam_api.steam_id_profile(self.player3_steam.data)
+                if steam_id:
+                    self.player3_steam.data = steam_id
+                    pass
+                else:
+                    raise ValidationError('Incorrect Steam profile URL')
+            else:
+                raise ValidationError('Please input Steam profile URL')
         else:
-            raise ValidationError('Incorrect steam profile URL')
+            pass
 
-    def validate_player4_steam(self, player4_steam):
-        steam_api = SteamAPI()
-        steam_id = steam_api.steam_id_profile(player4_steam.data)
-        if steam_id:
-            pass
+    def validate_player4_steam(self, hello):
+        if self.player4.data:
+            if self.player4_steam.data:
+                steam_api = SteamAPI()
+                steam_id = steam_api.steam_id_profile(self.player4_steam.data)
+                if steam_id:
+                    self.player4_steam.data = steam_id
+                    pass
+                else:
+                    raise ValidationError('Incorrect Steam profile URL')
+            else:
+                raise ValidationError('Please input Steam profile URL')
         else:
-            raise ValidationError('Incorrect steam profile URL')
+            pass
 
-    def validate_player5_steam(self, player5_steam):
-        steam_api = SteamAPI()
-        steam_id = steam_api.steam_id_profile(player5_steam.data)
-        if steam_id:
-            pass
+    def validate_player5_steam(self, hello):
+        if self.player5.data:
+            if self.player5_steam.data:
+                steam_api = SteamAPI()
+                steam_id = steam_api.steam_id_profile(self.player5_steam.data)
+                if steam_id:
+                    self.player5_steam.data = steam_id
+                    pass
+                else:
+                    raise ValidationError('Incorrect Steam profile URL')
+            else:
+                raise ValidationError('Please input Steam profile URL')
         else:
-            raise ValidationError('Incorrect steam profile URL')
+            pass
+
+    def validate_player6_steam(self, hello):
+        if self.player6.data:
+            if self.player6_steam.data:
+                steam_api = SteamAPI()
+                steam_id = steam_api.steam_id_profile(self.player6_steam.data)
+                if steam_id:
+                    self.player6_steam.data = steam_id
+                    pass
+                else:
+                    raise ValidationError('Incorrect Steam profile URL')
+            else:
+                raise ValidationError('Please input Steam profile URL')
+        else:
+            pass
+
+    def validate_player7_steam(self, hello):
+        if self.player7.data:
+            if self.player7_steam.data:
+                steam_api = SteamAPI()
+                steam_id = steam_api.steam_id_profile(self.player7_steam.data)
+                if steam_id:
+                    self.player7_steam.data = steam_id
+                    pass
+                else:
+                    raise ValidationError('Incorrect Steam profile URL')
+            else:
+                raise ValidationError('Please input Steam profile URL')
+        else:
+            pass
+
+    def validate_player8_steam(self, hello):
+        if self.player8.data:
+            if self.player7_steam.data:
+                steam_api = SteamAPI()
+                steam_id = steam_api.steam_id_profile(self.player8_steam.data)
+                if steam_id:
+                    self.player8_steam.data = steam_id
+                    pass
+                else:
+                    raise ValidationError('Incorrect Steam profile URL')
+            else:
+                raise ValidationError('Please input Steam profile URL')
+        else:
+            pass
 
 
 class ChangePassword(FlaskForm):
@@ -111,11 +197,10 @@ class CreateTournament(FlaskForm):
     reg_end = DateField('Reg Close', validators=[DataRequired()])
     tour_start = DateField('Tour Start', validators=[DataRequired()])
     tour_end = DateField('Tour End', validators=[DataRequired()])
-    paid = BooleanField('Paid Tournament?')
-    payment_info = StringField('Payment info for participants (optional)')
     rules = StringField("Rules and Regulations", widget=TextArea())
     admin_wh = StringField("Discord Webhook for Admin notification", validators=[DataRequired()])
     players_wh = StringField("Discord Webhook for participants notification", validators=[DataRequired()])
+    discord_invite = StringField("Your Discord Server invite code")
     submit = SubmitField('Create Tournament', validators=[DataRequired()])
 
     def validate_reg_start_time(self, time):

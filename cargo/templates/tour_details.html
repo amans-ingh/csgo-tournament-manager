@@ -39,10 +39,6 @@
                             <td>{{ tour.tour_end }}</td>
                         </tr>
                         <tr>
-                            <td><b>Paid Tournmant:</b></td>
-                            <td>{{ tour.paid }}</td>
-                        </tr>
-                        <tr>
                             <td><b>Prize Pool:</b></td>
                             <td>{{ tour.prize }}</td>
                         </tr>
@@ -93,18 +89,16 @@
                     No team information found! Register your team in-order to request participation. <a class="btn btn-warning" href="/team">Team</a>
                     {% endif %}
             </div>
-            {% if tour.paid %}
             <div class="bg-dark" style="background: #ffffff;
   padding: 10px 20px;
   border: 1px solid #dddddd;
   border-radius: 3px;
   margin-bottom: 20px;
   position: relative;">
-                <h2>Payment Info</h2>
+                <h2>Rules and Regulations</h2>
                 <hr>
-                {{ tour.payment_info }}
+                {{ tour.rules }}
             </div>
-            {% endif %}
             <div class="bg-dark" style="background: #ffffff;
   padding: 10px 20px;
   border: 1px solid #dddddd;
@@ -122,6 +116,10 @@
                     <tr>
                         <td>Email</td>
                         <td>{{ organiser.email }}</td>
+                    </tr>
+                    <tr>
+                        <td>Discord</td>
+                        <td><a href=" {{ tour.discord_invite }}">Join Discord Server</a></td>
                     </tr>
                     </tbody>
                 </table>
