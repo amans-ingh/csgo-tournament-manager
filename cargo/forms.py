@@ -3,6 +3,8 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, Selec
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
 from wtforms.widgets import TextArea
+
+from cargo.discordapi import check_discord_webhook
 from cargo.models import User
 from cargo.steamapi import SteamAPI
 from flask_login import current_user
@@ -185,7 +187,7 @@ class ChangePassword(FlaskForm):
 
 
 class CreateTournament(FlaskForm):
-    name = StringField('Name of Tournament', validators=[Length(min=2, max=50)])
+    name = StringField('Name of Tournament', validators=[Length(min=2, max=50), DataRequired()])
     type = SelectField('Tournament Type', default='se',
                        choices=[('se', 'Single Elimination'), ('de', 'Double Elimination'), ('rr', 'Round Robin')])
     prize = StringField('Prize Pool', validators=[DataRequired()])
@@ -196,12 +198,20 @@ class CreateTournament(FlaskForm):
     reg_end_time = StringField('Time', validators=[DataRequired()])
     reg_end = DateField('Reg Close', validators=[DataRequired()])
     tour_start = DateField('Tour Start', validators=[DataRequired()])
-    tour_end = DateField('Tour End', validators=[DataRequired()])
+    tour_end = DateField('Tour End')
     rules = StringField("Rules and Regulations", widget=TextArea())
     admin_wh = StringField("Discord Webhook for Admin notification", validators=[DataRequired()])
     players_wh = StringField("Discord Webhook for participants notification", validators=[DataRequired()])
-    discord_invite = StringField("Your Discord Server invite code")
+    discord_invite = StringField("Your Discord Server invite code", validators=[DataRequired()])
     submit = SubmitField('Create Tournament', validators=[DataRequired()])
+
+    def validate_admin_wh(self, admin_wh):
+        if not check_discord_webhook(admin_wh.data):
+            raise ValidationError("Incorrect Discord Webhook API link")
+
+    def validate_players_wh(self, players_wh):
+        if not check_discord_webhook(players_wh.data):
+            raise ValidationError("Incorrect Discord Webhook API link")
 
     def validate_reg_start_time(self, time):
         if ":" not in str(time.data):

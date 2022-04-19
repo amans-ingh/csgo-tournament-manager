@@ -91,7 +91,7 @@
                             {% endif %}
                         </div>
                             </div>
-                            <div class="col-md-1">
+                            <div class="col-md-2">
                         <div class="form-group">
                             {{ form.reg_start_time.label(class="form-control-label mt-4") }}
                             {% if form.reg_start_time.errors %}
@@ -121,7 +121,7 @@
                             {% endif %}
                         </div>
                             </div>
-                            <div class="col-md-1">
+                            <div class="col-md-2">
                             <div class="form-group">
                             {{ form.reg_end_time.label(class="form-control-label mt-4") }}
                             {% if form.reg_end_time.errors %}
@@ -136,7 +136,7 @@
                             {% endif %}
                         </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                         <div class="form-group">
                             {{ form.tour_start.label(class="form-control-label mt-4") }}
                             {% if form.tour_start.errors %}
@@ -150,22 +150,23 @@
                             {{ form.tour_start(class="form-control form-control-sm") }}
                             {% endif %}
                         </div>
-                            </div>
-                            <div class="col-md-3">
-                            <div class="form-group">
-                            {{ form.tour_end.label(class="form-control-label mt-4") }}
-                            {% if form.tour_end.errors %}
-                            {{ form.tour_end(class="form-control form-control-sm is-invalid") }}
-                            <div class="invalid-feedback">
-                                {% for error in form.tour_end.errors %}
-                                <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            {{ form.tour_end(class="form-control form-control-sm") }}
-                            {% endif %}
-                            </div>
-                            </div> </div>
+<!--                            </div>-->
+<!--                            <div class="col-md-3">-->
+<!--                            <div class="form-group">-->
+<!--                            {{ form.tour_end.label(class="form-control-label mt-4") }}-->
+<!--                            {% if form.tour_end.errors %}-->
+<!--                            {{ form.tour_end(class="form-control form-control-sm is-invalid") }}-->
+<!--                            <div class="invalid-feedback">-->
+<!--                                {% for error in form.tour_end.errors %}-->
+<!--                                <span>{{ error }}</span>-->
+<!--                                {% endfor %}-->
+<!--                            </div>-->
+<!--                            {% else %}-->
+<!--                            {{ form.tour_end(class="form-control form-control-sm") }}-->
+<!--                            {% endif %}-->
+<!--                            </div>-->
+<!--                            </div>-->
+                        </div>
                             <div class="row">
                             <div class="col-md-12">
                             {{ form.admin_wh.label(class="form-control-label mt-4") }}

@@ -1,5 +1,19 @@
+import json
+
 from dhooks import Webhook, Embed
 from cargo import application
+import requests
+
+
+def check_discord_webhook(wh):
+    wh = wh.split("https://discord.com/api/webhooks/")[-1]
+    data = requests.get("https://discord.com/api/webhooks/" + wh)
+    try:
+        json_data = data.json()
+        token = json_data["token"]
+        return True
+    except:
+        return False
 
 
 def admin_webhook_server_issue(wh, server_name, server_ip, server_port):

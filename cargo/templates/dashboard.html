@@ -11,7 +11,7 @@
   position: relative;">
                 <h1>Basic Settings</h1>
                 <hr>
-                Configure tournaments basic settings like name, payment information etc. <br>
+                Configure tournament<br>
                 <a class="btn btn-primary mt-2" href="/organise/{{tour.id}}/settings">Settings</a>
             </div>
         </div>
@@ -25,7 +25,6 @@
                 <h1>Registrations</h1>
                 <hr>
                 Total Registrations: {{num_registrations}} <br>
-                Accepted Registrations: {{num_accepted}} <br>
                 <a class="btn btn-primary mt-2" href="/organise/{{ tour.id }}/registrations">Registrations</a>
             </div>
         </div>
@@ -51,8 +50,17 @@
   border-radius: 3px;
   margin-bottom: 20px;
   position: relative;">
-                <h1>Matches and Schedules</h1>
-                <br>
+                <div class="row">
+                    <div class="col-md-8">
+                        <h1>Matches and Schedules</h1>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex justify-content-center">
+                            <a class="btn btn-info" href="/organise/{{tour.id}}/configure">Configure Rounds</a>
+                        </div>
+
+                    </div>
+                </div>
                 <table class="table text-white mt-5">
                     <thead>
                       <tr>

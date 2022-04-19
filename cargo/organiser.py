@@ -123,8 +123,9 @@ def tournament_settings(id):
                 tour_end_data = datetime.datetime(int(tour_end[0]), int(tour_end[1]), int(tour_end[2]))
                 form.tour_end.data = tour_end_data
                 form.admin_wh.data = tour.admin_wh
-                form.players_wh = tour.players_wh
-                form.discord_invite = tour.discord_invite
+                form.players_wh.data = tour.players_wh
+                form.discord_invite.data = tour.discord_invite
+                form.rules.data = tour.rules
             if form.validate_on_submit():
                 tour.name = form.name.data
                 tour.type = form.type.data
@@ -141,6 +142,7 @@ def tournament_settings(id):
                 tour.rules = form.rules.data
                 tour.players_wh = form.players_wh.data
                 tour.discord_invite = form.discord_invite.data
+                tour.rules = form.rules.data
                 db.session.commit()
                 save = Tournament.query.get(id)
                 save_tournament(save)
