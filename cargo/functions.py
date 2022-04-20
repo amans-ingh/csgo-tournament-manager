@@ -194,7 +194,7 @@ def details_from_match_id(match_id):
     return tour_id, round_num, match_num
 
 
-def veto_status(tour_id, round_num, match_num, data=False, get=True, reset=False, bo=1):
+def veto_status(tour_id, round_num, match_num, data=False, get=True, reset=False, bo=3):
     data_def = {
         "mapstatus": {
             "mirage": True,
@@ -205,6 +205,16 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True, reset=False
             "train": True,
             "nuke": True
         },
+        "mapchosen": {
+            "mirage": True,
+            "inferno": True,
+            "overpass": True,
+            "dust2": True,
+            "vertigo": True,
+            "train": True,
+            "nuke": True
+        },
+        "mapsorder": [],
         "serverstatus": {
             "ip": None,
             "port": None
@@ -248,68 +258,85 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True, reset=False
                                     try:
                                         banned_map = data["map"]
                                         veto_data = match["vetostatus"]
-                                        if str(data["team"]) == str(veto_data["voting"]):
-                                            if veto_data["action"] == "Ban":
-                                                veto_data["mapstatus"][banned_map] = False
-                                            else:
-                                                veto_data["mapstatus"][banned_map] = True
-                                            count = 0
-                                            for maps in veto_data["mapstatus"]:
-                                                if veto_data["mapstatus"][maps] == True:
-                                                    count += 1
-                                            if int(veto_data["bo"]) == 1:
-                                                veto_data["action"] = "Ban"
-                                            if int(veto_data["bo"]) == 3:
-                                                if count == 7 or count == 6:
-                                                    veto_data["action"] = "Ban"
-                                                elif count == 5 or count == 4:
-                                                    veto_data["action"] = "Pick"
+                                        if veto_data["mapchosen"][banned_map]:
+                                            if str(data["team"]) == str(veto_data["voting"]):
+                                                veto_data["mapchosen"][banned_map] = False
+                                                if veto_data["action"] == "Ban":
+                                                    veto_data["mapstatus"][banned_map] = False
                                                 else:
+                                                    veto_data["mapstatus"][banned_map] = True
+                                                count = 0
+                                                for maps in veto_data["mapstatus"]:
+                                                    if veto_data["mapstatus"][maps] == True:
+                                                        count += 1
+                                                    if veto_data["mapchosen"][maps] == False and veto_data["mapstatus"][maps]:
+                                                        if not maps in veto_data["mapsorder"]:
+                                                            veto_data["mapsorder"].append(str(maps))
+                                                count2 = 0
+                                                for maps in veto_data["mapchosen"]:
+                                                    if veto_data["mapchosen"][maps] == True:
+                                                        count2 += 1
+                                                if int(veto_data["bo"]) == 1:
                                                     veto_data["action"] = "Ban"
-                                            if int(veto_data["bo"]) == 5:
-                                                veto_data["action"] = "Ban"
-                                            if count == int(veto_data["bo"]):
-                                                veto_data["completed"] = True
-                                            veto_data["voting"] = (int(veto_data["voting"])<<1) % 3
-                                            con = json.dumps(config, indent=4)
-                                            with open('cargo/data/' + str(tour_id) + '.json', 'w+') as f:
-                                                f.write(con)
+                                                if int(veto_data["bo"]) == 3:
+                                                    if count2 == 7 or count2 == 6:
+                                                        veto_data["action"] = "Ban"
+                                                    elif count2 == 5 or count2 == 4:
+                                                        veto_data["action"] = "Pick"
+                                                    else:
+                                                        veto_data["action"] = "Ban"
+                                                if int(veto_data["bo"]) == 5:
+                                                    veto_data["action"] = "Ban"
+
+                                                if count == int(veto_data["bo"]):
+                                                    veto_data["completed"] = True
+                                                veto_data["voting"] = (int(veto_data["voting"])<<1) % 3
+                                                con = json.dumps(config, indent=4)
+                                                with open('cargo/data/' + str(tour_id) + '.json', 'w+') as f:
+                                                    f.write(con)
+                                            return veto_data
                                         return veto_data
                                     except KeyError:
                                         match["vetostatus"] = data_def
                                         banned_map = data["map"]
                                         veto_data = data_def
-                                        if data["team"] == veto_data["voting"]:
-                                            if veto_data["action"] == "Ban":
-                                                veto_data["mapstatus"][banned_map] = False
-                                            else:
-                                                veto_data["mapstatus"][banned_map] = True
-                                            count = 0
-                                            for maps in veto_data["mapstatus"]:
-                                                if veto_data["mapstatus"][maps] == True:
-                                                    count += 1
-                                            if int(veto_data["bo"]) == 1:
-                                                veto_data["action"] = "Ban"
-                                            if int(veto_data["bo"]) == 3:
-                                                if count == 7 or count == 6:
-                                                    veto_data["action"] = "Ban"
-                                                elif count == 5 or count == 4:
-                                                    veto_data["action"] = "Pick"
+                                        if veto_data["mapchosen"][banned_map]:
+                                            if data["team"] == veto_data["voting"]:
+                                                veto_data["mapchosen"][banned_map] = False
+                                                if veto_data["action"] == "Ban":
+                                                    veto_data["mapstatus"][banned_map] = False
                                                 else:
+                                                    veto_data["mapstatus"][banned_map] = True
+                                                count = 0
+                                                for maps in veto_data["mapstatus"]:
+                                                    if veto_data["mapchosen"][maps] == False and veto_data["mapstatus"][maps]:
+                                                        if not maps in veto_data["mapsorder"]:
+                                                            veto_data["mapsorder"].append(str(maps))
+                                                    if veto_data["mapstatus"][maps] == True:
+                                                        count += 1
+                                                if int(veto_data["bo"]) == 1:
                                                     veto_data["action"] = "Ban"
-                                            if int(veto_data["bo"]) == 5:
-                                                veto_data["action"] = "Ban"
-                                            if count == int(veto_data["bo"]):
-                                                veto_data["completed"] = True
-                                            veto_data["voting"] = (int(veto_data["voting"])<<1) % 3
-                                            con = json.dumps(config, indent=4)
-                                            with open('cargo/data/' + str(tour_id) + '.json', 'w+') as f:
-                                                f.write(con)
+                                                if int(veto_data["bo"]) == 3:
+                                                    if count == 7 or count == 6:
+                                                        veto_data["action"] = "Ban"
+                                                    elif count == 5 or count == 4:
+                                                        veto_data["action"] = "Pick"
+                                                    else:
+                                                        veto_data["action"] = "Ban"
+                                                if int(veto_data["bo"]) == 5:
+                                                    veto_data["action"] = "Ban"
+                                                if count == int(veto_data["bo"]):
+                                                    veto_data["completed"] = True
+                                                veto_data["voting"] = (int(veto_data["voting"])<<1) % 3
+                                                con = json.dumps(config, indent=4)
+                                                with open('cargo/data/' + str(tour_id) + '.json', 'w+') as f:
+                                                    f.write(con)
+                                            return veto_data
                                         return veto_data
     return True
 
 
-def participant_map_veto(tour, round_num, match_num):
+def participant_map_veto(tour, round_num, match_num, bo=3):
     data_def = {
         "mapstatus": {
             "mirage": True,
@@ -320,13 +347,23 @@ def participant_map_veto(tour, round_num, match_num):
             "train": True,
             "nuke": True
         },
+        "mapchosen": {
+            "mirage": True,
+            "inferno": True,
+            "overpass": True,
+            "dust2": True,
+            "vertigo": True,
+            "train": True,
+            "nuke": True
+        },
+        "mapsorder": [],
         "serverstatus": {
             "ip": None,
             "port": None
         },
         "voting": 1,
         "action": "Ban",
-        "bo": 1,
+        "bo": bo,
         "team1_online": False,
         "team2_online": False,
         "completed": False
@@ -384,6 +421,7 @@ def participant_map_veto(tour, round_num, match_num):
             match["vetostatus"]["serverstatus"]["port"] = server.port
             server.busy = True
             db.session.commit()
+    print(match)
     config = json.dumps(config, indent=4)
     with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
         f.write(config)

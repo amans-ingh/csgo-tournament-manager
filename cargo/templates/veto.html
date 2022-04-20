@@ -86,18 +86,6 @@
 {% endblock %}
 {% block script %}
 <script>
-    function removeMap(map) {
-        document.getElementById(map).disabled = true;
-        document.getElementById(map).classList.remove('btn-primary');
-        document.getElementById(map).classList.add('btn-secondary');
-    };
-
-    function addMap(map) {
-        document.getElementById(map).disabled = false;
-        document.getElementById(map).classList.remove('btn-secondary');
-        document.getElementById(map).classList.add('btn-primary');
-    };
-
     function controlVoting(action) {
         document.getElementById('mirage').disabled = action;
         document.getElementById('inferno').disabled = action;
@@ -110,19 +98,9 @@
 
     function banMap(map) {
         let decision = '{"auth_token": "{{auth_token}}", "matchid": "{{matchid}}", "team": "{{my_team_num}}", "map": "' + map  + '"}'
-        removeMap(map);
         controlVoting(true);
         socket2.send(decision)
     };
-
-    function inHTML(map, action) {
-        document.getElementById(map).innerHTML = action + " " + map;
-    };
-
-    function inHTML2(div, data) {
-        document.getElementById(div).innerHTML = data;
-    };
-
     function hidediv(id) {
         document.getElementById(id).style.display = 'none';
     };
@@ -131,12 +109,44 @@
         document.getElementById(id).style.display = 'block';
     };
 
+    function pickedMap(map) {
+        document.getElementById(map).classList.remove('btn-primary');
+        document.getElementById(map).classList.remove('btn-danger');
+        document.getElementById(map).classList.add('btn-success');
+    };
+
+    function bannedMap(map) {
+        document.getElementById(map).classList.remove('btn-primary');
+        document.getElementById(map).classList.remove('btn-success');
+        document.getElementById(map).classList.add('btn-danger');
+    };
+    function noMap(map) {
+        document.getElementById(map).classList.remove('btn-success');
+        document.getElementById(map).classList.remove('btn-danger');
+        document.getElementById(map).classList.add('btn-primary');
+    };
+
+    function inHTML(map, action) {
+        document.getElementById(map).innerHTML = action + " " + map;
+    };
+    function inHTML2(div, data) {
+        document.getElementById(div).innerHTML = data;
+    };
+
     function mapstatus(data, map) {
-        if (data.mapstatus[map]) {
-            addMap(map);
+        if (data.mapchosen[map] == false) {
+            if (data.mapstatus[map] == false) {
+                bannedMap(map);
+            }
+            else {
+                pickedMap(map);
+            };
         }
         else {
-            removeMap(map);
+            noMap(map);
+        };
+        if (data.mapchosen[map]) {
+            document.getElementById(map).disabled = false;
         };
     };
 

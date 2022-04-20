@@ -20,8 +20,12 @@ class GenerateConfig:
             try:
                 maplist = config["matches"]["round" + str(self.round_num)][str(self.match_num)]["vetostatus"][
                     "mapstatus"]
+                maplist2 = config["matches"]["round" + str(self.round_num)][str(self.match_num)]["vetostatus"][
+                    "mapsorder"]
+                for map in maplist2:
+                    maps_to_be_played.append(map)
                 for map in maplist:
-                    if maplist[map]:
+                    if maplist[map] and not map in maps_to_be_played:
                         maps_to_be_played.append(map)
             except KeyError:
                 return ['de_mirage']
@@ -58,12 +62,14 @@ class MyApiMatchStart(Resource):
             if tour:
                 match = Match.query.filter_by(tour=tour_id, round_num=round_num, match_num=match_num).first()
                 if match:
+                    maps = config_generator.find_maps()
                     team_a, team_b, match_id = config_generator.find_teams()
                     config = {'matchid': str(match_id),
-                              'num_maps': len(config_generator.find_maps()),
+                              'num_maps': len(maps),
                               'skip_veto': True,
                               'side_type': 'always_knife',
-                              'maplist': config_generator.find_maps(),
+                              'maplist': maps,
+                              'maps_to_win': int(len(maps)/2) + 1,
                               'players_per_team': 5,
                               'min_players_to_ready': 1,
                               'min_spectators_to_ready': 0,
