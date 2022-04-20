@@ -446,3 +446,17 @@ def check_all_servers(tour_id):
         else:
             server.busy = True
     db.session.commit()
+
+
+def tour_enable(tour):
+    tourney = Tournament.query.get(tour.id)
+    if tourney:
+        tourney.status = True
+        db.session.commit()
+
+
+def tour_disable(tour):
+    tourney = Tournament.query.get(tour.id)
+    if tourney:
+        tourney.status = False
+        db.session.commit()

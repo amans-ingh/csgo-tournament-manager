@@ -12,7 +12,7 @@ from cargo.functions import bracket_type, save_tournament, add_team_tournament, 
 from cargo.brackets import TournamentBrackets
 import datetime
 
-from cargo.sheduling import schedule_match_events, unschedule_match_events
+from cargo.sheduling import schedule_match_events, unschedule_match_events, schedule_tour_events, unschedule_tour_events
 
 
 @application.route('/organise')
@@ -51,6 +51,8 @@ def create_tournament():
             db.session.commit()
             save = Tournament.query.filter_by(admin=current_user.id).all()
             save_tournament(save[-1])
+            unschedule_tour_events(save[-1])
+            schedule_tour_events(save[-1])
             tourney_matches = TournamentBrackets(tournament)
             if form.type.data == 'se':
                 for i in range(8):
@@ -119,9 +121,6 @@ def tournament_settings(id):
                 tour_start = str(tour.tour_start).split("-")
                 tour_start_data = datetime.datetime(int(tour_start[0]), int(tour_start[1]), int(tour_start[2]))
                 form.tour_start.data = tour_start_data
-                # tour_end = str(tour.tour_end).split("-")
-                # tour_end_data = datetime.datetime(int(tour_end[0]), int(tour_end[1]), int(tour_end[2]))
-                # form.tour_end.data = tour_end_data
                 form.admin_wh.data = tour.admin_wh
                 form.players_wh.data = tour.players_wh
                 form.discord_invite.data = tour.discord_invite
@@ -145,6 +144,8 @@ def tournament_settings(id):
                 tour.rules = form.rules.data
                 db.session.commit()
                 save = Tournament.query.get(id)
+                unschedule_tour_events(save)
+                schedule_tour_events(save)
                 save_tournament(save)
                 tourney_matches = TournamentBrackets(save)
                 if form.type.data == 'se':

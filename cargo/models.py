@@ -44,6 +44,7 @@ class Tournament(db.Model):
     admin_wh = db.Column(db.String)
     players_wh = db.Column(db.String)
     discord_invite = db.Column(db.String)
+    status = db.Column(db.Boolean, default=False)
     admin = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 

@@ -2,7 +2,7 @@ import json
 import os
 
 from cargo import scheduler
-from cargo.functions import participant_map_veto
+from cargo.functions import participant_map_veto, tour_enable, tour_disable
 from cargo.models import Tournament
 
 
@@ -56,3 +56,27 @@ def unschedule_match_events(tour_id, round_num, match_num):
             scheduler.remove_job(str(matchid)+'ma')
         except:
             pass
+
+
+def schedule_tour_events(tour):
+    year, month, day, hour, minute = cron_params(tour.reg_start, tour.reg_start_time)
+    scheduler.add_job(trigger='cron', func=tour_enable, args=[tour],
+                      id=str(tour.id)+'te',
+                      year=year, month=month, day=day,
+                      hour=hour, minute=minute)
+    year, month, day, hour, minute = cron_params(tour.reg_end, tour.reg_end_time)
+    scheduler.add_job(trigger='cron', func=tour_disable, args=[tour],
+                      id=str(tour.id)+'ts',
+                      year=year, month=month, day=day,
+                      hour=hour, minute=minute)
+
+
+def unschedule_tour_events(tour):
+    try:
+        scheduler.remove_job(str(tour.id)+'te')
+    except:
+        pass
+    try:
+        scheduler.remove_job(str(tour.id)+'ts')
+    except:
+        pass

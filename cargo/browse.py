@@ -9,14 +9,18 @@ from cargo.functions import bracket_type
 @login_required
 def browse_tournament():
     tour = Tournament.query.filter_by(reg_open=True).all()
-    return render_template('browse.html', user=current_user, title='Browse', tour=tour)
+    tours = []
+    for t in tour:
+        if t.status:
+            tours.append(t)
+    return render_template('browse.html', user=current_user, title='Browse', tour=tours)
 
 
 @application.route('/browse/<int:id>/register')
 @login_required
 def tour_details(id):
     tour = Tournament.query.get(id)
-    if tour:
+    if tour and tour.status:
         organiser = User.query.filter_by(id=tour.admin).first()
         my_team = Team.query.filter_by(user=current_user.id).first()
         bracket = bracket_type(tour)
@@ -32,7 +36,7 @@ def tour_details(id):
 @login_required
 def reg_confirm(id):
     tour = Tournament.query.get(id)
-    if tour:
+    if tour and tour.status:
         my_team = Team.query.filter_by(user=current_user.id).first()
         if my_team:
             regs = Registration.query.filter_by(tour_id=tour.id, team_id=my_team.id).first()
