@@ -4,7 +4,7 @@ import os
 from cargo import db
 from cargo.brackets import TournamentBrackets
 from cargo.discordapi import participants_join_veto, admin_server_unavailable
-from cargo.models import Servers, Tournament
+from cargo.models import Servers, Tournament, Rounds
 from cargo.rcon import GameServer
 
 
@@ -194,7 +194,10 @@ def details_from_match_id(match_id):
     return tour_id, round_num, match_num
 
 
-def veto_status(tour_id, round_num, match_num, data=False, get=True, reset=False, bo=3):
+def veto_status(tour_id, round_num, match_num, data=False, get=True, reset=False, bo=1):
+    round_data = Rounds.query.filter_by(tour_id=tour_id, round_num=round_num).first()
+    if round_data:
+        bo = int(round_data.bo)
     data_def = {
         "mapstatus": {
             "mirage": True,
@@ -336,7 +339,10 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True, reset=False
     return True
 
 
-def participant_map_veto(tour, round_num, match_num, bo=3):
+def participant_map_veto(tour, round_num, match_num, bo=1):
+    round_data = Rounds.query.filter_by(tour_id=tour.id, round_num=round_num).first()
+    if round_data:
+        bo = int(round_data.bo)
     data_def = {
         "mapstatus": {
             "mirage": True,

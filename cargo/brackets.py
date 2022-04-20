@@ -1,6 +1,9 @@
+import bdb
 import json
 import os
-from cargo.models import Registration
+
+from cargo import db
+from cargo.models import Rounds
 
 
 class TournamentBrackets:
@@ -24,6 +27,14 @@ class TournamentBrackets:
             total_positions = 2 ** int(config['basic']['total_rounds_se'])
             if r_num > number_of_rounds:
                 config["matches"] = {}
+            if r_num != number_of_rounds:
+                Rounds.query.filter_by(tour_id=self.tour.id).delete()
+                for r in range(number_of_rounds):
+                    round_data = Rounds(tour_id=self.tour.id,
+                                        round_num=r,
+                                        bo=1)
+                    db.session.add(round_data)
+                db.session.commit()
 
             # Alternate seeding
             seeding = [None] * total_positions

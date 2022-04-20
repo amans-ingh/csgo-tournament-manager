@@ -3,7 +3,7 @@ import os
 
 from flask import render_template, url_for, flash, redirect, request
 from cargo import application, db
-from cargo.models import User, Team, Tournament, Registration, Servers
+from cargo.models import User, Team, Tournament, Registration, Servers, Rounds
 from cargo.rcon import GameServer
 from cargo.forms import CreateTournament, AddServerForm, ScheduleMatch
 from flask_login import current_user, login_required
@@ -119,9 +119,9 @@ def tournament_settings(id):
                 tour_start = str(tour.tour_start).split("-")
                 tour_start_data = datetime.datetime(int(tour_start[0]), int(tour_start[1]), int(tour_start[2]))
                 form.tour_start.data = tour_start_data
-                tour_end = str(tour.tour_end).split("-")
-                tour_end_data = datetime.datetime(int(tour_end[0]), int(tour_end[1]), int(tour_end[2]))
-                form.tour_end.data = tour_end_data
+                # tour_end = str(tour.tour_end).split("-")
+                # tour_end_data = datetime.datetime(int(tour_end[0]), int(tour_end[1]), int(tour_end[2]))
+                # form.tour_end.data = tour_end_data
                 form.admin_wh.data = tour.admin_wh
                 form.players_wh.data = tour.players_wh
                 form.discord_invite.data = tour.discord_invite
@@ -367,3 +367,30 @@ def schedule_match(tour_id, round_num, match_num):
             return render_template('schedule_match.html', user=current_user, tour=tour, form=form)
         return render_template('unauth.html', user=current_user, title='Unathorised')
     return render_template('error.html', user=current_user, title='Page Not Found')
+
+
+@application.route('/organise/<int:tour_id>/configure')
+@login_required
+def configure_rounds(tour_id):
+    tour = Tournament.query.get(tour_id)
+    if not tour:
+        return render_template('error.html', user=current_user, title='Page Not Found')
+    if not tour.admin == current_user.id:
+        return render_template('error.html', user=current_user, title='Page Not Found')
+    round_data = Rounds.query.filter_by(tour_id=tour.id)
+    return render_template('configure_rounds.html', user=current_user, tour=tour, round_data=round_data)
+
+
+@application.route('/organise/<int:tour_id>/round/<int:round_num>/bo/<int:value>')
+@login_required
+def configure_round_value(tour_id, round_num, value):
+    tour = Tournament.query.get(tour_id)
+    if not tour:
+        return render_template('error.html', user=current_user, title='Page Not Found')
+    if not tour.admin == current_user.id:
+        return render_template('error.html', user=current_user, title='Page Not Found')
+    round_data = Rounds.query.filter_by(tour_id=tour_id, round_num=round_num).first()
+    if round_data:
+        round_data.bo = value
+        db.session.commit()
+    return redirect(url_for('configure_rounds', tour_id=tour_id))

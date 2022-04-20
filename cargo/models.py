@@ -188,11 +188,8 @@ class PlayerStats(db.Model):
         return rv
 
 
-class UpcomingTasks(db.Model):
+class Rounds(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    task_type = db.Column(db.Integer)  # 1 - Schedule Match, 2 -
-    date = db.Column(db.String)
-    time = db.Column(db.String)
     tour_id = db.Column(db.Integer)
-    round_numer = db.Column(db.Integer)
-    match_number = db.Column(db.Integer)
+    round_num = db.Column(db.String)
+    bo = db.Column(db.String)

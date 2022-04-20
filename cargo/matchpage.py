@@ -106,6 +106,19 @@ def matchpage_sock(ws):
                                         api_key = token_hex(20)
                                         server.busy = True
                                         gs = GameServer(server.ip, server.port, server.password)
+                                        matchdb = Match.query.filter_by(matchid=matchid).first()
+                                        if matchdb:
+                                            matchdb.tour = tour_id
+                                            matchdb.round_num = round_num
+                                            matchdb.match_num = match_num
+                                            matchdb.api_key = api_key
+                                            matchdb.server_id = server.id
+                                            matchdb.ip = server.ip
+                                            matchdb.team1_id = match["team"]["id"]
+                                            matchdb.tea2_id = match["team2"]["id"]
+                                            db.session.commit()
+                                            gs.load_match(tour_id, round_num, match_num)
+                                            return
                                         matchdb = Match(tour=tour_id,
                                                         round_num=round_num,
                                                         match_num=match_num,
@@ -118,6 +131,7 @@ def matchpage_sock(ws):
                                         db.session.add(matchdb)
                                         db.session.commit()
                                         gs.load_match(tour_id, round_num, match_num)
+                                        return
     except:
         pass
 
