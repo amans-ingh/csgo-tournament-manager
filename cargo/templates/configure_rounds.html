@@ -1,0 +1,49 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+<div id="content" class="text-white">
+      <div class="row">
+          <div class="col-md-9">
+              <h1>{{ tour.name }} - Rounds</h1>
+          </div>
+          <div class="col-md-3">
+            <div class="row">
+            <div class="col-sm-6"><a class="btn btn-warning btn-sm" href="/organise/{{tour.id}}/dashboard">Dashboard</a></div>
+              </div>
+          </div>
+      </div>
+  <table class="table text-white mt-5">
+    <thead>
+      <tr>
+        <th>Round</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for round in round_data %}
+      <tr>
+        <td>
+          Round {{ round.round_num }}
+        </td>
+        <td>
+            {% if round.bo == '1' %}
+            <a class="btn btn-success btn-sm" href="/organise/{{tour.id}}/round/{{round.round_num}}/bo/1">Best of 1</a>
+            <a class="btn btn-danger btn-sm" href="/organise/{{tour.id}}/round/{{round.round_num}}/bo/3">Best of 3</a>
+            <a class="btn btn-danger btn-sm" href="/organise/{{tour.id}}/round/{{round.round_num}}/bo/5">Best of 5</a>
+            {% elif round.bo == '3' %}
+            <a class="btn btn-danger btn-sm" href="/organise/{{tour.id}}/round/{{round.round_num}}/bo/1">Best of 1</a>
+            <a class="btn btn-success btn-sm" href="/organise/{{tour.id}}/round/{{round.round_num}}/bo/3">Best of 3</a>
+            <a class="btn btn-danger btn-sm" href="/organise/{{tour.id}}/round/{{round.round_num}}/bo/5">Best of 5</a>
+            {% elif round.bo == '5' %}
+            <a class="btn btn-danger btn-sm" href="/organise/{{tour.id}}/round/{{round.round_num}}/bo/1">Best of 1</a>
+            <a class="btn btn-danger btn-sm" href="/organise/{{tour.id}}/round/{{round.round_num}}/bo/3">Best of 3</a>
+            <a class="btn btn-success btn-sm" href="/organise/{{tour.id}}/round/{{round.round_num}}/bo/5">Best of 5</a>
+            {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

@@ -69,7 +69,7 @@ class MyApiMatchStart(Resource):
                               'skip_veto': True,
                               'side_type': 'always_knife',
                               'maplist': maps,
-                              'maps_to_win': int(len(maps)/2) + 1,
+                              'maps_to_win': int(len(maps) / 2) + 1,
                               'players_per_team': 5,
                               'min_players_to_ready': 1,
                               'min_spectators_to_ready': 0,
