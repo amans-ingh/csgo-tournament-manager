@@ -39,9 +39,8 @@ def schedule_match_events(tour_id, round_num, match_num):
     r_n = round_num.split("round")
     r_n = int(r_n[1])
     matchid = 2048*(int(tour.id)+1) + 256*(r_n + 1) + (int(match_num)+1)
-    print(matchid)
     if tour:
-        scheduler.add_job(trigger='cron', func=lambda: participant_map_veto(tour, round_num, match_num, bo=3),
+        scheduler.add_job(trigger='cron', func=participant_map_veto, args=[tour, round_num, match_num],
                           id=str(matchid)+'ma',
                           year=year, month=month, day=day,
                           hour=hour, minute=minute)
@@ -54,6 +53,6 @@ def unschedule_match_events(tour_id, round_num, match_num):
     matchid = 2048*(int(tour.id)+1) + 256*(r_n + 1) + (int(match_num)+1)
     if tour:
         try:
-            scheduler.remove_job(id=str(matchid)+'ma')
+            scheduler.remove_job(str(matchid)+'ma')
         except:
             pass

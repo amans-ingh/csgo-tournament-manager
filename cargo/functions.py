@@ -427,7 +427,6 @@ def participant_map_veto(tour, round_num, match_num, bo=1):
             match["vetostatus"]["serverstatus"]["port"] = server.port
             server.busy = True
             db.session.commit()
-    print(match)
     config = json.dumps(config, indent=4)
     with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
         f.write(config)
