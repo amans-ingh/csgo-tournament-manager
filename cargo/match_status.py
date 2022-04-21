@@ -1,3 +1,5 @@
+import os
+
 from cargo import application, db
 from cargo.brackets import TournamentBrackets
 from cargo.functions import details_from_match_id
@@ -197,4 +199,13 @@ def match_map_update_player(matchid, mapnumber, steamid64):
 
 @application.route('/match/<int:matchid>/map/<int:map_num>/demo', methods=['POST'])
 def map_demo(matchid, map_num):
-    return 'ok'
+    match = Match.query.filter_by(matchid=matchid).first()
+    if not match:
+        return "Invalid matchid", 404
+    api_key = request.values.get('key')
+    if match.api_key != api_key:
+        return 'Wrong API key', 400
+    demofile = request.files['demoFile']
+    if demofile:
+        demofile.save(os.path.join(application.config['DATA'], str(matchid)+"_map_" + str(map_num) + ".dem"))
+    return 'Success'
