@@ -1,3 +1,5 @@
+import datetime
+
 from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, IntegerField
 from wtforms.fields.html5 import DateField
@@ -236,6 +238,18 @@ class CreateTournament(FlaskForm):
             raise ValidationError("Incorrect time format")
         if not (0<=hh<24 and 0<=mm<=59):
             raise ValidationError("Incorrect time entered")
+        yys = str(self.reg_start.data).split("-")[0]
+        mms = str(self.reg_start.data).split("-")[1]
+        dds = str(self.reg_start.data).split("-")[2]
+        hhs = str(self.reg_start_time.data).split(":")[0]
+        mins = str(self.reg_start_time.data).split(":")[1]
+        yye = str(self.reg_end.data).split("-")[0]
+        mme = str(self.reg_end.data).split("-")[1]
+        dde = str(self.reg_end.data).split("-")[2]
+        date_start = datetime.datetime(int(yys), int(mms), int(dds), int(hhs), int(mins))
+        date_end = datetime.datetime(int(yye), int(mme), int(dde), int(hh), int(mm))
+        if date_start > date_end:
+            raise ValidationError("End Date cannot be before start date")
 
 
 class AddServerForm(FlaskForm):
