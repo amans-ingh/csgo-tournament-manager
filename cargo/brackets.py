@@ -1,9 +1,20 @@
-import bdb
 import json
 import os
 
 from cargo import db
 from cargo.models import Rounds
+
+
+def seeding_algorithm(start, end, teams_in_this_round, team_pos):
+    if len(teams_in_this_round) > 1:
+        g = int(len(teams_in_this_round) / 2)
+        uh = teams_in_this_round[0:g]
+        lh = teams_in_this_round[g:]
+        seeding_algorithm(start, start + (end - start) / 2, uh, team_pos)
+        seeding_algorithm(start + (end - start) / 2, end, lh, team_pos)
+    else:
+        team_pos[int(start)] = teams_in_this_round[0]
+    return team_pos
 
 
 class TournamentBrackets:
@@ -39,16 +50,8 @@ class TournamentBrackets:
             # Alternate seeding
             seeding = [None] * total_positions
             teams = config["teams"]
-            for n in range(int(2 ** (number_of_rounds - 1))):
-                try:
-                    seeding[2 * n] = teams[n]
-                except IndexError:
-                    seeding[2 * n] = None
-            for n in range(int(2 ** (number_of_rounds - 1))):
-                try:
-                    seeding[2 * n + 1] = teams[n + int(2 ** (number_of_rounds - 1))]
-                except IndexError:
-                    seeding[2 * n + 1] = None
+            if len(teams)>=1:
+                seeding = seeding_algorithm(0, 2**number_of_rounds, teams, seeding)
             config["seeds"] = seeding
 
             # Configuring matches
@@ -59,6 +62,8 @@ class TournamentBrackets:
             except KeyError:
                 config['matches'] = {}
                 matches = config['matches']
+
+            # Assigning matches
             if round == 0:
                 try:
                     matchData = config["matches"]["round0"]
