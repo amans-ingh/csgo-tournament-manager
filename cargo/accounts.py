@@ -58,7 +58,7 @@ def register():
 @login_required
 def team():
     form = RegisterTeamForm()
-    my_team = Team.query.filter_by(id=current_user.id).first()
+    my_team = Team.query.filter_by(user=current_user.id).first()
     if form.validate_on_submit():
         if my_team:
             my_team.name = form.name.data

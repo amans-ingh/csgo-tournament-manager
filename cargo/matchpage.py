@@ -114,7 +114,7 @@ def matchpage_sock(ws):
                                             matchdb.api_key = api_key
                                             matchdb.server_id = server.id
                                             matchdb.ip = server.ip
-                                            matchdb.team1_id = match["team"]["id"]
+                                            matchdb.team1_id = match["team1"]["id"]
                                             matchdb.tea2_id = match["team2"]["id"]
                                             db.session.commit()
                                             gs.load_match(tour_id, round_num, match_num)
@@ -132,7 +132,7 @@ def matchpage_sock(ws):
                                         db.session.commit()
                                         gs.load_match(tour_id, round_num, match_num)
                                         return
-    except ConnectionError:
+    except:
         pass
 
 
@@ -156,3 +156,6 @@ def echo(ws, matchid):
         data = veto_status(tour_id, round_num, match_num, data=False, get=True)
         ws.send(json.dumps(data))
         time.sleep(1)
+
+
+# /match/4353/map/0/demo
