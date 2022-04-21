@@ -411,9 +411,9 @@ def participant_map_veto(tour, round_num, match_num, bo=1):
         return False
     tb = TournamentBrackets(tour)
     if team1 and not team2:
-        tb.single_elimination(round=r_n, result=team1["id"])
+        tb.single_elimination(round=r_n, result={"winnerId": team1["id"], "match": match_num})
     if team2 and not team1:
-        tb.single_elimination(round=r_n, result=team2["id"])
+        tb.single_elimination(round=r_n, result={"winnerId": team2["id"], "match": match_num})
     if not team1 and not team2:
         pass
     if team1 and team2:

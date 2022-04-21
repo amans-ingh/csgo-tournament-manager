@@ -193,3 +193,8 @@ def match_map_update_player(matchid, mapnumber, steamid64):
         return 'Failed to find map stats object', 404
 
     return 'Success'
+
+
+@application.route('/match/<int:matchid>/map/<int:map_num>/demo', methods=['POST'])
+def map_demo(matchid, map_num):
+    return 'ok'
