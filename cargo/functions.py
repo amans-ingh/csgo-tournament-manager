@@ -398,6 +398,16 @@ def participant_map_veto(tour, round_num, match_num, bo=1):
         return False
     r_n = int(round_num.split("round")[1])
     matchid = 2048 * (int(tour.id) + 1) + 256 * (r_n + 1) + (match_num + 1)
+    tb = TournamentBrackets(tour)
+    if team1 and not team2:
+        print(team1)
+        tb.single_elimination(round=r_n, result={"winnerId": team1["id"], "match": match_num})
+        return
+    if team2 and not team1:
+        tb.single_elimination(round=r_n, result={"winnerId": team2["id"], "match": match_num})
+        return
+    if not team1 and not team2:
+        pass
     check_all_servers(tour.id)
     server = Servers.query.filter_by(location=tour.id, busy=False).first()
     if not server:
@@ -409,13 +419,6 @@ def participant_map_veto(tour, round_num, match_num, bo=1):
         admin_server_unavailable(tour, round_num, match_num)
         db.session.commit()
         return False
-    tb = TournamentBrackets(tour)
-    if team1 and not team2:
-        tb.single_elimination(round=r_n, result={"winnerId": team1["id"], "match": match_num})
-    if team2 and not team1:
-        tb.single_elimination(round=r_n, result={"winnerId": team2["id"], "match": match_num})
-    if not team1 and not team2:
-        pass
     if team1 and team2:
         if tour.players_wh:
             participants_join_veto(tour, team1, team2, matchid)

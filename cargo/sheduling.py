@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 
@@ -60,15 +61,24 @@ def unschedule_match_events(tour_id, round_num, match_num):
 
 def schedule_tour_events(tour):
     year, month, day, hour, minute = cron_params(tour.reg_start, tour.reg_start_time)
-    scheduler.add_job(trigger='cron', func=tour_enable, args=[tour],
-                      id=str(tour.id)+'te',
-                      year=year, month=month, day=day,
-                      hour=hour, minute=minute)
+    reg_open = datetime.datetime(int(year), int(month), int(day), int(hour), int(minute))
+    if reg_open > datetime.datetime.now():
+        scheduler.add_job(trigger='cron', func=tour_enable, args=[tour],
+                          id=str(tour.id)+'te',
+                          year=year, month=month, day=day,
+                          hour=hour, minute=minute)
+    else:
+        tour_enable(tour)
+
     year, month, day, hour, minute = cron_params(tour.reg_end, tour.reg_end_time)
-    scheduler.add_job(trigger='cron', func=tour_disable, args=[tour],
-                      id=str(tour.id)+'ts',
-                      year=year, month=month, day=day,
-                      hour=hour, minute=minute)
+    reg_close = datetime.datetime(int(year), int(month), int(day), int(hour), int(minute))
+    if reg_close < datetime.datetime.now():
+        tour_disable(tour)
+    else:
+        scheduler.add_job(trigger='cron', func=tour_disable, args=[tour],
+                          id=str(tour.id)+'ts',
+                          year=year, month=month, day=day,
+                          hour=hour, minute=minute)
 
 
 def unschedule_tour_events(tour):
