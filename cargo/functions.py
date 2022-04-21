@@ -340,7 +340,8 @@ def veto_status(tour_id, round_num, match_num, data=False, get=True, reset=False
 
 
 def participant_map_veto(tour, round_num, match_num, bo=1):
-    round_data = Rounds.query.filter_by(tour_id=tour.id, round_num=round_num).first()
+    r_n = int(round_num.split("round")[1])
+    round_data = Rounds.query.filter_by(tour_id=tour.id, round_num=r_n).first()
     if round_data:
         bo = int(round_data.bo)
     data_def = {

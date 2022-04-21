@@ -132,30 +132,27 @@ def matchpage_sock(ws):
                                         db.session.commit()
                                         gs.load_match(tour_id, round_num, match_num)
                                         return
-    except:
+    except ConnectionError:
         pass
 
 
 @sock.route('/matchdata/<int:matchid>')
 def echo(ws, matchid):
-    try:
-        while True:
-            tour_id, round_num, match_num = details_from_match_id(matchid)
-            tour = Tournament.query.get(tour_id)
-            if tour:
-                if os.path.exists('cargo/data/' + str(tour.id) + '.json'):
-                    config = json.load(open('cargo/data/' + str(tour.id) + '.json'))
-                    matches = config["matches"]
-                    if matches:
-                        round = matches["round" + str(round_num)]
-                        if round:
-                            match = round[str(match_num)]
-                            if match:
-                                veto = match["veto"]
-                                if not veto:
-                                    return
-            data = veto_status(tour_id, round_num, match_num, data=False, get=True)
-            ws.send(json.dumps(data))
-            time.sleep(1)
-    except:
-        pass
+    while True:
+        tour_id, round_num, match_num = details_from_match_id(matchid)
+        tour = Tournament.query.get(tour_id)
+        if tour:
+            if os.path.exists('cargo/data/' + str(tour.id) + '.json'):
+                config = json.load(open('cargo/data/' + str(tour.id) + '.json'))
+                matches = config["matches"]
+                if matches:
+                    round = matches["round" + str(round_num)]
+                    if round:
+                        match = round[str(match_num)]
+                        if match:
+                            veto = match["veto"]
+                            if not veto:
+                                return
+        data = veto_status(tour_id, round_num, match_num, data=False, get=True)
+        ws.send(json.dumps(data))
+        time.sleep(1)
