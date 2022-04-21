@@ -47,7 +47,7 @@ class TournamentBrackets:
                     db.session.add(round_data)
                 db.session.commit()
 
-            # Alternate seeding
+            # Seeding
             seeding = [None] * total_positions
             teams = config["teams"]
             if len(teams)>=1:

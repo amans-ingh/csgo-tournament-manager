@@ -355,15 +355,28 @@ def schedule_match(tour_id, round_num, match_num):
             if form.validate_on_submit():
                 if os.path.exists('cargo/data/' + str(tour_id) + '.json'):
                     config = json.load(open('cargo/data/' + str(tour_id) + '.json'))
-                    match = config["matches"][round_num][str(match_num)]
-                    match["date"] = str(form.date.data)
-                    match["time"] = form.time.data
-                    config = json.dumps(config, indent=4)
-                    with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
-                        f.write(config)
-                    veto_status(tour_id, int(round_num.split("round")[1]), match_num, reset=True)
-                    unschedule_match_events(tour_id, round_num, match_num)
-                    schedule_match_events(tour_id, round_num, match_num)
+                    try:
+                        match = config["matches"][round_num][str(match_num)]
+                        try:
+                            winner = match["winner"]
+                        except KeyError:
+                            winner = False
+                        if winner and match["team1"] and match["team2"]:
+                            flash("Match already completed", 'warning')
+                            return redirect(url_for('tournament', id=tour.id))
+                        match["date"] = str(form.date.data)
+                        match["time"] = form.time.data
+                        match["winner"] = False
+                        config = json.dumps(config, indent=4)
+                        with open('cargo/data/' + str(tour.id) + '.json', 'w+') as f:
+                            f.write(config)
+                        veto_status(tour_id, int(round_num.split("round")[1]), match_num, reset=True)
+                        unschedule_match_events(tour_id, round_num, match_num)
+                        schedule_match_events(tour_id, round_num, match_num)
+                        flash('Match rescheduled', 'success')
+                        return redirect(url_for('tournament', id=tour.id))
+                    except:
+                        return redirect(url_for('tournament', id=tour.id))
                 return redirect(url_for('tournament', id=tour.id))
             return render_template('schedule_match.html', user=current_user, tour=tour, form=form)
         return render_template('unauth.html', user=current_user, title='Unathorised')
