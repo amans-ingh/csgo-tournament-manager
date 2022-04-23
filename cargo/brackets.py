@@ -48,10 +48,34 @@ class TournamentBrackets:
                 db.session.commit()
 
             # Seeding
-            seeding = [None] * total_positions
+            def ordering(b, order, r, count, n):
+                if len(b) == n:
+                    return order
+                for u in b:
+                    if order[int(u)] == -1:
+                        order[int(u)] = count
+                        count += 1
+                        order[int(u + n / 2)] = count
+                        count += 1
+                r = 2 * r
+                c = []
+                for u in b:
+                    c.append(u)
+                    c.append(u + n / r)
+                order = ordering(c, order, r, count, n)
+                return order
+
+            n = 2**number_of_rounds
+            order = [-1] * n
+            seed_numbering = ordering([0], order, 2, 0, n)
             teams = config["teams"]
-            if len(teams)>=1:
-                seeding = seeding_algorithm(0, 2**number_of_rounds, teams, seeding)
+            seeding = [None] * n
+            t_i_r = teams
+            for i, s in enumerate(seed_numbering):
+                try:
+                    seeding[s] = t_i_r[i]
+                except IndexError:
+                    break
             config["seeds"] = seeding
 
             # Configuring matches
