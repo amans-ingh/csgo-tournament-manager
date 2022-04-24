@@ -7,9 +7,6 @@ from flask_login import LoginManager
 from flask_sock import Sock
 from flask_apscheduler import APScheduler
 from sqlalchemy import create_engine
-from pyftpdlib.authorizers import DummyAuthorizer
-from pyftpdlib.handlers import FTPHandler
-from pyftpdlib.servers import FTPServer
 
 application = Flask(__name__)
 application.config.from_pyfile('config.py')
@@ -21,15 +18,6 @@ db = SQLAlchemy(application)
 bcrypt = Bcrypt(application)
 api_match_start = Api(application)
 login_manager = LoginManager(application)
-authorizer = DummyAuthorizer()
-handler = FTPHandler
-handler.authorizer = authorizer
-handler.banner = "pyftpdlib based ftpd ready."
-address = ('', application.config['FTP_PORT'])
-server = FTPServer(address, handler)
-server.max_cons = 256
-server.max_cons_per_ip = 5
-server.serve_forever()
 
 
 from cargo import accounts, browse, match_status, matchpage, organiser, participants

@@ -84,7 +84,12 @@ class MyApiMatchStart(Resource):
                                         'get5_allow_technical_pause': 1,
                                         'get5_end_match_on_empty_server': 0,
                                         'get5_kick_when_no_match_loaded': 1,
-                                        'get5_web_api_url': application.config['SERVER_URL']
+                                        'get5_web_api_url': application.config['SERVER_URL'],
+                                        'get5_api_ftp_enabled': 1,
+                                        'get5_api_ftp_host': application.config["IP"],
+                                        'get5_api_ftp_password': application.config["FTP_PASSWORD"],
+                                        'get5_api_ftp_port': application.config["FTP_PORT"],
+                                        'get5_api_ftp_username': application.config["FTP_USER"]
                                         }
                               }
                     return config
