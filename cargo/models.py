@@ -188,6 +188,21 @@ class PlayerStats(db.Model):
 
         return rv
 
+    def get_rating(self):
+        AverageKPR = 0.679
+        AverageSPR = 0.317
+        AverageRMK = 1.277
+        KillRating = float(self.kills) / float(self.roundsplayed) / AverageKPR
+        SurvivalRating = float(self.roundsplayed -
+                               self.deaths) / self.roundsplayed / AverageSPR
+        killcount = float(self.k1 + 4 * self.k2 + 9 *
+                          self.k3 + 16 * self.k4 + 25 * self.k5)
+        RoundsWithMultipleKillsRating = killcount / \
+                                        self.roundsplayed / AverageRMK
+        rating = (KillRating + 0.7 * SurvivalRating +
+                  RoundsWithMultipleKillsRating) / 2.7
+        return rating
+
 
 class Rounds(db.Model):
     id = db.Column(db.Integer, primary_key=True)

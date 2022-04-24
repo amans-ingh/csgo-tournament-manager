@@ -4,7 +4,7 @@ import time
 
 from flask import render_template
 from cargo import application, db, sock
-from cargo.models import Team, Tournament, Servers, Match
+from cargo.models import Team, Tournament, Servers, Match, MapStats, PlayerStats
 from cargo.rcon import GameServer
 from flask_login import current_user, login_required
 from cargo.functions import details_from_match_id, veto_status
@@ -158,4 +158,30 @@ def echo(ws, matchid):
         time.sleep(1)
 
 
-# /match/4353/map/0/demo
+@application.route('/matchpage/<int:matchid>/results')
+def match_results(matchid):
+    match = Match.query.filter_by(matchid=matchid).first()
+    if match:
+        team1 = Team.query.get(match.team1_id)
+        team2 = Team.query.get(match.team2_id)
+        team1_name = team1.name
+        team2_name = team2.name
+        mapstats = MapStats.query.filter_by(match_id=matchid).all()
+        for map in mapstats:
+            player_stats_team1 = PlayerStats.query.filter_by(match_id=matchid, map_id=map.id, team_id=team1.id).all()
+            player_stats_team2 = PlayerStats.query.filter_by(match_id=matchid, map_id=map.id, team_id=team2.id).all()
+            for player in player_stats_team1:
+                player.adr = int(float(player.damage)/float(player.roundsplayed))
+                player.kpr = int(float(player.kills)/float(player.roundsplayed))
+                player.rating = round(player.get_rating(), 2)
+            for player in player_stats_team2:
+                player.adr = int(float(player.damage)/float(player.roundsplayed))
+                player.kpr = int(float(player.kills)/float(player.roundsplayed))
+                player.rating = round(player.get_rating(), 2)
+            map.playerstats1 = player_stats_team1
+            map.playerstats2 = player_stats_team2
+        return render_template('results.html', user=current_user, title='Results',
+                               team1_name=team1_name,
+                               team2_name=team2_name,
+                               match=match, mapstats=mapstats)
+    return render_template('error.html', user=current_user, title='Page Not Found')

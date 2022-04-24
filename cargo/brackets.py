@@ -146,7 +146,7 @@ class TournamentBrackets:
                             match["winner"] = winner
                 matches['round' + str(round)] = matchData
 
-            if round:
+            else:
                 try:
                     matchData = config["matches"]["round" + str(round)]
                     # Update other matches
@@ -164,7 +164,7 @@ class TournamentBrackets:
                         m['team1'] = team1
                         m['team2'] = team2
                     if result:
-                        match = matchData[result["match"]]
+                        match = matchData[str(result["match"])]
                         winnerId = result["winnerId"]
                         winner = None
                         try:
@@ -173,8 +173,8 @@ class TournamentBrackets:
                         except KeyError:
                             pass
                         try:
-                            if match["team1"]["id"] == winnerId:
-                                winner = match["team1"]
+                            if match["team2"]["id"] == winnerId:
+                                winner = match["team2"]
                         except KeyError:
                             pass
                         if winner:

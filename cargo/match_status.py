@@ -40,15 +40,14 @@ def match_finish(matchid):
     winner = request.values.get('winner')
     if winner == 'team1':
         match.winner = match.team1_id
-        tb.single_elimination(round_num, {"match": match_num, "winnerId": match.winner})
+        tb.single_elimination(round_num, {"match": str(match_num), "winnerId": match.winner})
         tb.single_elimination(round_num+1)
     elif winner == 'team2':
         match.winner = match.team2_id
-        tb.single_elimination(round_num, {"match": match_num, "winnerId": match.winner})
+        tb.single_elimination(round_num, {"match": str(match_num), "winnerId": match.winner})
         tb.single_elimination(round_num+1)
     else:
         match.winner = None
-
     forfeit = request.values.get('forfeit', 0)
     if forfeit == 1:
         match.forfeit = True
