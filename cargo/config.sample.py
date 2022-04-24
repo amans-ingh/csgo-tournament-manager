@@ -1,3 +1,4 @@
+import socket
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 import os
 
@@ -15,3 +16,6 @@ SCHEDULER_JOBSTORES = {"default": SQLAlchemyJobStore(url="sqlite:///" + os.path.
 SCHEDULER_EXECUTORS = {"default": {"type": "threadpool", "max_workers": 20}}
 SCHEDULER_JOB_DEFAULTS = {"coalesce": False, "max_instances": 3}
 SCHEDULER_API_ENABLED = False
+FTP_PORT = 2121
+FTP_DIRECTORY = r"within static folder with folder name 'demos'"
+IP = socket.gethostbyname(SERVER_URL.replace("https://", "").replace("http://", "").replace("/", ""))

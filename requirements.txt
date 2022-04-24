@@ -50,3 +50,5 @@ WTForms==2.3.3
 wtforms-html5==0.6.1
 yarl==1.7.2
 zipp==3.8.0
+
+pyftpdlib~=1.5.6

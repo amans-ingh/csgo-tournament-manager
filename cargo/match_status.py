@@ -1,10 +1,7 @@
-import os
-
 from cargo import application, db
 from cargo.brackets import TournamentBrackets
 from cargo.functions import details_from_match_id
 from cargo.models import Match, MapStats, PlayerStats, Servers, Tournament
-
 from flask import request
 
 
@@ -204,7 +201,5 @@ def map_demo(matchid, map_num):
     api_key = request.values.get('key')
     if match.api_key != api_key:
         return 'Wrong API key', 400
-    demofile = request.files['demoFile']
-    if demofile:
-        demofile.save(os.path.join(application.config['DATA'], str(matchid)+"_map_" + str(map_num) + ".dem"))
+    demofile = request.values.get('demoFile')
     return 'Success'

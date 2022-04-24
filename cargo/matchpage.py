@@ -3,7 +3,7 @@ import os
 import time
 
 from flask import render_template
-from cargo import application, db, sock
+from cargo import application, db, sock, authorizer
 from cargo.models import Team, Tournament, Servers, Match, MapStats, PlayerStats
 from cargo.rcon import GameServer
 from flask_login import current_user, login_required
@@ -106,6 +106,7 @@ def matchpage_sock(ws):
                                         api_key = token_hex(20)
                                         server.busy = True
                                         gs = GameServer(server.ip, server.port, server.password)
+                                        authorizer.add_user(api_key, api_key, application.config["FTP_DIRECTORY"], perm='elradfmw')
                                         matchdb = Match.query.filter_by(matchid=matchid).first()
                                         if matchdb:
                                             matchdb.tour = tour_id
